@@ -1,0 +1,233 @@
+[
+  {
+    "title": "ASCII: The 7-Bit Foundation of Digital Typography",
+    "subject": "Computer Science / Computer Systems & Data Representation",
+    "metaphorTitle": "The Neon Pilot Frequency Matrix",
+    "metaphorStory": "In the sprawling orbital fortress of Neo-Kyoto, mech pilots from dozens of disparate planetary sectors struggled to communicate during high-speed orbital skirmishes. Radio transmissions produced garbled mechanical static because each faction's onboard flight computer parsed pilot signals with proprietary dialects. To prevent catastrophic telemetry collisions, the Grand Fleet Engineering Guild forged the 'Aegis Frequency Codex'—a standardized 7-pin holographic plug given to every pilot cockpit.\n\nEach plug contained exactly 7 micro-switches, capable of locking into 128 unique energetic resonance states (2^7). The first 32 frequencies were wired directly to silent cockpit actuators—emergency overrides like 'EJECT' (ESC), 'CARRIAGE RESET' (CR), and 'ALERT CHIME' (BEL) that commanded the mech without printing a single rune on the cockpit HUD. The remaining 96 frequencies illuminated crystal glyphs across the pilot's holographic visor: numbers for shield percentages, uppercase insignia for tactical battle-groups, and lowercase runes for telemetry chatter.\n\nMost brilliantly, the Chief Architect engineered an elegant symmetry into the 6th switch (bit 5). Flipping this single micro-lever instantly transformed any roaring command rune (like Battlegroup 'A' at state 65) into its stealth recon variant (scout 'a' at state 97), allowing pilots to toggle transmission states instantaneously with zero arithmetic overhead during combat.",
+    "academicConcept": "ASCII (American Standard Code for Information Interchange), formalized as ANSI X3.4-1963 and aligned with ISO/IEC 646, is a character encoding architecture that maps 128 specified characters to 7-bit integers (ranging from 0 to 127 in decimal, 0x00 to 0x7F in hexadecimal). In standard computing architectures, an ASCII character is encapsulated within an 8-bit byte, with the most significant bit (MSB, bit 7) traditionally set to 0 or utilized for parity checking in serial communications.\n\nThe character set is functionally partitioned into two primary ranges: \n1. Control Characters (0x00–0x1F and 0x7F): 33 non-printing characters designed for teleprinter device control (e.g., NUL, ACK, LF, CR) and communication handshaking.\n2. Printable Characters (0x20–0x7E): 95 visible glyphs encompassing the space character (0x20), Arabic numerals (0x30–0x39 for '0'–'9'), uppercase Latin alphabet (0x41–0x5A for 'A'–'Z'), lowercase Latin alphabet (0x61–0x7A for 'a'–'z'), and standard punctuation.\n\nA key design elegance is mathematical alignment: numeric digits have a high-nibble of 0x3, enabling conversion to integer values via mask `char & 0x0F`. Furthermore, uppercase and lowercase glyphs differ by exactly 32 (2^5, or bit 5), permitting single-cycle bitwise conversions: `to_lower(c) = c | 0x20` and `to_upper(c) = c & ~0x20`.",
+    "keyTakeaways": [
+      "ASCII utilizes a 7-bit encoding space yielding exactly 128 code points (0x00 to 0x7F), stored in an 8-bit byte with an MSB of 0.",
+      "Code points 0–31 and 127 are non-printing control characters (e.g., Line Feed 0x0A, Carriage Return 0x0D), while 32–126 are printable glyphs.",
+      "Numeric characters ('0' to '9') span 0x30 to 0x39; subtracting 0x30 ('0') or masking with 0x0F yields the integer numeric value.",
+      "Case conversion between 'A'–'Z' (0x41–0x5A) and 'a'–'z' (0x61–0x7A) is achieved by toggling bit 5 (0x20), without full arithmetic evaluation."
+    ],
+    "hotspots": [
+      {
+        "id": "spot-1",
+        "label": "The C0 Control Zone (0x00 - 0x1F)",
+        "tag": "Telemetry / Control",
+        "explanation": "The first 32 slots reserved strictly for machine hardware instructions, transmission control, and teletype formatting (e.g., NUL, SOH, CR, LF, BEL)."
+      },
+      {
+        "id": "spot-2",
+        "label": "The Alphanumeric Grid (0x30 - 0x7A)",
+        "tag": "Printable Symbols",
+        "explanation": "Structured contiguous memory clusters: Digits 0-9 begin at 0x30 (48 decimal), Uppercase 'A'-'Z' at 0x41 (65 decimal), and Lowercase 'a'-'z' at 0x61 (97 decimal)."
+      },
+      {
+        "id": "spot-3",
+        "label": "The 6th Bit Lever (Bit 5 / 0x20)",
+        "tag": "Bitwise Architecture",
+        "explanation": "The specific binary position (0b00100000) that separates uppercase from lowercase glyphs, enabling ultra-fast bitwise masking (OR to lowercase, AND-NOT to uppercase)."
+      }
+    ],
+    "visualCueCards": [
+      {
+        "id": "cue-1",
+        "title": "7-Bit Capacity Constraint",
+        "visualAnchor": "A 7-chamber neon capacitor array where each illuminated cell holds a binary power of 2.",
+        "formulaOrFact": "2^7 = 128 total characters (0x00 to 0x7F)",
+        "intuitionQuestion": "Why did original ASCII define 128 characters instead of 256?",
+        "answer": "Teleprinters and memory buses in the 1960s optimized bandwidth by utilizing 7 data bits; the 8th bit in a byte was commonly reserved for parity-check error detection."
+      },
+      {
+        "id": "cue-2",
+        "title": "The Case-Flip Bitmask",
+        "visualAnchor": "A mech cockpit toggle labeled 'BIT 5 [32]' switching between capital insignia and small stealth script.",
+        "formulaOrFact": "'A' (01000001) ^ 0x20 = 'a' (01100001)",
+        "intuitionQuestion": "What low-level bitwise operation converts any ASCII letter to lowercase regardless of initial case?",
+        "answer": "Bitwise OR with 0x20 (`c | 0x20`), which forces bit 5 to 1 without altering any other bits."
+      },
+      {
+        "id": "cue-3",
+        "title": "Digit-to-Integer Extraction",
+        "visualAnchor": "Stripping off the cybernetic armor plate '0x3' from an incoming data cartridge to expose the raw core integer.",
+        "formulaOrFact": "int_val = char_code - 0x30 (or char_code & 0x0F)",
+        "intuitionQuestion": "Why do ASCII digit representations start at 48 (0x30) instead of 0?",
+        "answer": "0x00 through 0x1F were already occupied by control codes, and 0x30 aligns the binary lower nibble (bits 0-3) directly with binary values 0000 through 1001 (0-9)."
+      }
+    ],
+    "activeRecallQuiz": [
+      {
+        "question": "Given a character variable `c` containing an unknown English letter in ASCII, which expression is guaranteed to convert it to uppercase while leaving punctuation unchanged?",
+        "options": [
+          "c & ~0x20 (provided c is verified as an alphabetic character)",
+          "c | 0x20",
+          "c + 32",
+          "c ^ 0x0F"
+        ],
+        "correctIndex": 0,
+        "explanation": "`~0x20` produces a mask with a 0 at bit 5 and 1s elsewhere (`0b11011111`). Applying a bitwise AND clears bit 5, transforming lowercase letters (e.g., 0x61 'a') into uppercase (0x41 'A'). Option B forces lowercase, Option C fails if the character is already uppercase (and risks overflow/corruption), and Option D corrupts the lower nibble."
+      }
+    ],
+    "imagePrompt": "Cyberpunk Mecha Blueprint: neon cyan and purple HUD schematics, glowing circuit wireframes, high-contrast holographic data streams. An educational technical schematic of the 7-bit ASCII table visualized as an orbital mecha telemetry console. A focused anime pilot-scholar with cybernetic glasses examines a hovering holographic 16x8 matrix grid. Neon cyan data tracks highlight control codes 0x00-0x1F, while radiant purple pathways trace ASCII values for 'A' (01000001) shifting to 'a' (01100001) through a highlighted glowing bit-5 logic gate. Annotations, hexagonal circuit nodes, binary data buses, and crisp HUD callouts provide technical depth against a dark blueprint grid.",
+    "id": "topic-1790985382923",
+    "style": "cyberpunk",
+    "createdAt": "2026-10-02T23:56:38.298Z",
+    "imageUrl": "/generated/topic-1790985382923_ascii.jpg"
+  },
+  {
+    "title": "Demystifying Greedy Algorithms: The Logic of Immediate Gain",
+    "subject": "Computer Science / Algorithms",
+    "metaphorTitle": "The Luminous Path of the Star-Seeker",
+    "metaphorStory": "In the celestial kingdom of Aethelgard, young travelers must navigate the 'Bridge of Whispering Stars' during the Great Twilight. To reach the Zenith Peak, you stand at a crossroads of glowing fragments. A Greedy Star-Seeker follows one simple, unwavering rule: at every single junction, you must leap to the fragment that glows the brightest from your current position. You do not look three steps ahead, nor do you map out the entire bridge; you simply trust that the best immediate choice is the best path forward.\n\nWhile this 'Short-Sighted Brilliance' allows the traveler to move with incredible speed and confidence, it carries a hidden risk. Sometimes, by choosing the brightest stone nearby, you bypass a dim, humble pebble that—several leaps later—leads to a hidden staircase of pure sunlight. In the world of Greedy Algorithms, we trade global foresight for local perfection, hoping that the sum of our best 'nows' equals the best possible 'ever.'",
+    "academicConcept": "A Greedy Algorithm is an algorithmic paradigm that builds up a solution piece by piece, always choosing the next piece that offers the most obvious and immediate benefit. It operates on the 'Greedy Choice Property': a global optimum can be arrived at by selecting a local optimum. For a greedy algorithm to be mathematically proven as optimal, the problem must also exhibit 'Optimal Substructure,' meaning an optimal solution to the problem contains within it optimal solutions to subproblems. Unlike Dynamic Programming, Greedy algorithms never reconsider their choices (no backtracking), making them highly efficient—typically O(n log n) or O(n)—but not always globally optimal for every problem type (e.g., it works for Fractional Knapsack but fails for 0/1 Knapsack).",
+    "keyTakeaways": [
+      "Local Optimum: Makes the best choice available at the current moment without regard for future consequences.",
+      "No Backtracking: Once a choice is made, it is permanent and never revisited.",
+      "Efficiency: Usually faster than Dynamic Programming because it explores only one path.",
+      "Feasibility Check: Each step must satisfy the problem's constraints while aiming for the objective function."
+    ],
+    "hotspots": [
+      {
+        "id": "spot-1",
+        "label": "The Local Peak",
+        "tag": "Greedy Choice",
+        "explanation": "Represented by the brightest glowing star at the current fork; this is the 'best' immediate option chosen by the algorithm."
+      },
+      {
+        "id": "spot-2",
+        "label": "The Forgotten Path",
+        "tag": "Sub-optimal Risk",
+        "explanation": "A dimmer path that leads to a much higher mountain later; greedy algorithms often miss this because they lack foresight."
+      },
+      {
+        "id": "spot-3",
+        "label": "Optimal Substructure",
+        "tag": "Mathematical Property",
+        "explanation": "The glowing trail left behind; if the total path is optimal, every segment of it must also be the optimal way to travel between those two points."
+      }
+    ],
+    "visualCueCards": [
+      {
+        "id": "cue-1",
+        "title": "The 'Right Now' Rule",
+        "visualAnchor": "A character reaching for the largest coin in a pile while ignoring a treasure chest further away.",
+        "formulaOrFact": "Local Best == Global Best?",
+        "intuitionQuestion": "Does picking the biggest piece of cake now guarantee the most cake total?",
+        "answer": "Not always. It depends on whether the 'size' of future pieces changes based on your current choice."
+      },
+      {
+        "id": "cue-2",
+        "title": "Dijkstra’s Lantern",
+        "visualAnchor": "A lantern illuminating only the immediate next steps in a dark forest.",
+        "formulaOrFact": "Greedy Choice Property",
+        "intuitionQuestion": "Why is Dijkstra's algorithm considered greedy?",
+        "answer": "Because it always expands the 'cheapest' known node next, trusting that this will lead to the shortest overall path."
+      },
+      {
+        "id": "cue-3",
+        "title": "The Knapsack Dilemma",
+        "visualAnchor": "A bag being filled with gold dust (fractional) vs. whole heavy statues (0/1).",
+        "formulaOrFact": "Fractional = Greedy; 0/1 = DP",
+        "intuitionQuestion": "When can you use a greedy approach for the Knapsack problem?",
+        "answer": "Only when items can be broken into smaller fractions (Fractional Knapsack), allowing you to pick based on value-per-weight."
+      }
+    ],
+    "activeRecallQuiz": [
+      {
+        "question": "Which of the following is a core requirement for a Greedy Algorithm to produce an optimal solution?",
+        "options": [
+          "The problem must have a very small search space.",
+          "The problem must exhibit the Greedy Choice Property and Optimal Substructure.",
+          "The algorithm must be able to backtrack and correct previous mistakes.",
+          "The problem must involve sorting the input in descending order only."
+        ],
+        "correctIndex": 1,
+        "explanation": "For a greedy algorithm to be globally optimal, it must satisfy the Greedy Choice Property (local leads to global) and Optimal Substructure (optimal solutions to subproblems build the main solution)."
+      }
+    ],
+    "imagePrompt": "A breathtaking Makoto Shinkai style educational infographic. In the center, a schoolgirl in a sailor uniform stands on a floating crystal island under a deep teal and amber dusk sky filled with radiant, towering clouds and shooting stars. Before her are three glowing paths of light. Path A is extremely bright but ends abruptly. Path B is dim but climbs toward a massive, radiant golden moon (The Global Optimum). She is reaching toward Path A, illustrating the 'Greedy' choice. Annotated with glowing holographic UI elements: 'Local Choice' pointing to her hand, 'Global Optimum' pointing to the distant moon, and 'No Backtracking' shown as a crumbling bridge behind her. High-end CoMix Wave Films quality, lens flares, and emotional lighting.",
+    "id": "topic-1790984798326",
+    "style": "shinkai",
+    "createdAt": "2026-10-02T23:47:26.254Z",
+    "imageUrl": "/generated/topic-1790984798326_1790984846254.jpg"
+  },
+  {
+    "title": "Mastering the Memory Sanctum: Cache Hierarchy & Locality",
+    "subject": "Computer Science / Computer Organization & Architecture",
+    "metaphorTitle": "The Weaver's Astral Desk of the Celestial Archive",
+    "metaphorStory": "In the floating towers of the Celestial Archive, a Master Weaver named Ren crafts 'Threads of Destiny' using cosmic energy. Ren’s mind processes these threads at near-instantaneous speeds, but his workshop is vast. To stay efficient, Ren uses three tiers of storage: his 'Glow-Palm' (L1), where threads he is currently touching vibrate with light; his 'Tool-Sash' (L2), where he keeps his favorite needles; and the 'Workshop Cabinet' (L3), which he shares with other weavers for common patterns. \n\nWhen Ren needs a thread and finds it in his Glow-Palm, it is a 'Radiant Hit'—work continues without a pause. If he must leave his desk to trek down to the 'Eternal Library' (Main Memory/RAM) across the valley, he suffers a 'Void Miss,' wasting precious cycles of time. Ren thrives because he follows two laws of the Archive: Temporal Essence (if he used a thread once, he will likely use it again) and Spatial Resonance (when he grabs one thread, he always brings the adjacent ones in the bundle, knowing they are part of the same destiny).",
+    "academicConcept": "Cache memory is a small, high-speed storage layer (SRAM) situated between the CPU and Main Memory (DRAM) to reduce the Effective Access Time. The hierarchy is organized by proximity to the processor: L1 (fastest, smallest, often split into instruction and data), L2 (larger, slightly slower), and L3 (shared across cores, largest). The effectiveness of this system relies on the Principle of Locality. Temporal Locality suggests that a memory location referenced recently is likely to be referenced again soon. Spatial Locality suggests that locations near a recently referenced location are likely to be accessed soon. When data is found in a cache, it is a 'Hit'; otherwise, it is a 'Miss,' necessitating a fetch from a slower level, incurring a 'Miss Penalty.'",
+    "keyTakeaways": [
+      "L1/L2/L3 caches provide a trade-off between access speed (latency) and storage capacity.",
+      "Temporal Locality allows the CPU to reuse data without re-fetching from distant memory.",
+      "Spatial Locality is optimized by fetching 'Cache Lines' (blocks of data) rather than single bytes.",
+      "AMAT (Average Memory Access Time) = Hit Time + (Miss Rate × Miss Penalty)."
+    ],
+    "hotspots": [
+      {
+        "id": "spot-1",
+        "label": "The Core Radiance (L1)",
+        "tag": "Registers & L1 Cache",
+        "explanation": "Visualized as the Weaver's hands glowing with active energy. This represents the fastest memory, operating at the processor's clock speed."
+      },
+      {
+        "id": "spot-2",
+        "label": "The Block Bundle",
+        "tag": "Spatial Locality",
+        "explanation": "A glowing bundle of threads being moved together. This illustrates that when one byte is requested, the entire cache line (usually 64 bytes) is moved to exploit spatial proximity."
+      },
+      {
+        "id": "spot-3",
+        "label": "The Library Bridge",
+        "tag": "Main Memory (RAM)",
+        "explanation": "A long, translucent bridge leading to a distant, massive library under the starlight. This represents the high latency (wait time) required to fetch data when a 'Cache Miss' occurs."
+      }
+    ],
+    "visualCueCards": [
+      {
+        "id": "cue-1",
+        "title": "The AMAT Equation",
+        "visualAnchor": "A balanced scale under a dusk sky",
+        "formulaOrFact": "AMAT = Hit Time + (Miss Rate × Miss Penalty)",
+        "intuitionQuestion": "If your hit rate is 99%, does the speed of the library still matter?",
+        "answer": "Yes. Even a small miss rate multiplied by a huge miss penalty (RAM latency) can significantly slow down the processor."
+      },
+      {
+        "id": "cue-2",
+        "title": "Temporal vs. Spatial",
+        "visualAnchor": "A repeating loop vs. a row of books",
+        "formulaOrFact": "Temporal = Time (Reuse); Spatial = Space (Neighbors)",
+        "intuitionQuestion": "Why does an array traversal benefit from spatial locality?",
+        "answer": "Array elements are stored in contiguous memory addresses; fetching the first element brings its neighbors into the cache automatically."
+      },
+      {
+        "id": "cue-3",
+        "title": "Cache Hierarchy Tiers",
+        "visualAnchor": "A pyramid of glowing crystals",
+        "formulaOrFact": "L1 (Fastest/Smallest) < L2 < L3 < RAM (Slowest/Largest)",
+        "intuitionQuestion": "Why isn't all memory made of L1-speed SRAM?",
+        "answer": "SRAM is extremely expensive and physically large (6 transistors per bit), making it impractical for gigabyte-scale storage."
+      }
+    ],
+    "activeRecallQuiz": [
+      {
+        "question": "A program is performing a linear scan of a very large array. Which principle is most responsible for maintaining high performance in this scenario?",
+        "options": [
+          "Temporal Locality",
+          "Spatial Locality",
+          "Instruction Pipclining",
+          "Write-Back Policy"
+        ],
+        "correctIndex": 1,
+        "explanation": "Spatial locality is the tendency to access data locations that are physically close to each other. During a linear scan, the CPU fetches blocks of memory; once the first element is loaded into the cache, the subsequent elements are already there, ready for use."
+      }
+    ],
+    "imagePrompt": "A high-detail educational anime infographic in Makoto Shinkai's style. Central focus: a young anime scholar standing at a desk of glowing light (L1) with shimmering needles. To his side, a shelf of glowing jars (L2), and in the background, a massive shared cabinet (L3) radiating amber light. Above him, a vast dusk sky with teal clouds and radiant starlight. A glowing translucent bridge leads to a distant, grand library (RAM) under a giant moon. Labeled arrows show 'Radiant Hits' as sparks on the desk and 'Void Misses' as long light-streaks toward the library. The atmosphere is intellectual, emotional, and crisp, with CoMix Wave Films' signature lighting and lens flares.",
+    "id": "topic-1790983483664",
+    "style": "shinkai",
+    "createdAt": "2026-10-02T23:25:07.178Z",
+    "imageUrl": "/generated/topic-1790983483664_1790983507182.jpg"
+  }
+]
