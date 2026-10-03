@@ -90,12 +90,12 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
   };
 
   return (
-    <div className="flex flex-col h-[580px] rounded-xl bg-zinc-950 border border-white/[0.08] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-230px)] min-h-[460px] sm:h-[580px] rounded-xl bg-zinc-950 border border-white/[0.08] overflow-hidden">
       {/* Sleek Minimal Header */}
-      <div className="px-4 py-2.5 border-b border-white/[0.08] bg-zinc-900/50 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+      <div className="px-3 sm:px-4 py-2 sm:py-2.5 border-b border-white/[0.08] bg-zinc-900/50 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <span className="text-xs font-semibold text-white">SenpaiAI</span>
-          <span className="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-white/[0.06]">
+          <span className="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-1.5 sm:px-2 py-0.5 rounded border border-white/[0.06] hidden sm:inline">
             Gemini 3.8 Flash
           </span>
         </div>
@@ -108,7 +108,7 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
               <button
                 key={lvl}
                 onClick={() => setThinkingLevel(lvl)}
-                className={`px-2 py-0.5 text-[11px] capitalize rounded font-medium transition-colors cursor-pointer ${
+                className={`px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] capitalize rounded font-medium transition-colors cursor-pointer ${
                   thinkingLevel === lvl
                     ? 'bg-zinc-800 text-white'
                     : 'text-zinc-400 hover:text-zinc-200'
@@ -122,13 +122,13 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
       </div>
 
       {/* Subtle Prompt Suggestions */}
-      <div className="px-3.5 py-2 border-b border-white/[0.06] bg-zinc-950 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="px-3 sm:px-3.5 py-1.5 sm:py-2 border-b border-white/[0.06] bg-zinc-950 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
         {quickPrompts.map((qp, idx) => (
           <button
             key={idx}
             onClick={() => sendMessage(qp)}
             disabled={isLoading}
-            className="shrink-0 px-2.5 py-1 rounded-md text-xs bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 border border-white/[0.06] transition-colors cursor-pointer"
+            className="shrink-0 px-2 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-xs bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 border border-white/[0.06] transition-colors cursor-pointer"
           >
             {qp}
           </button>
@@ -210,27 +210,27 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
       </div>
 
       {/* Input Dock */}
-      <div className="p-3 bg-zinc-950 border-t border-white/[0.08]">
+      <div className="p-2.5 sm:p-3 bg-zinc-950 border-t border-white/[0.08]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             sendMessage();
           }}
-          className="flex items-center gap-2 bg-zinc-900 border border-white/[0.08] focus-within:border-zinc-500 rounded-lg px-3 py-1.5 transition-colors"
+          className="flex items-center gap-2 bg-zinc-900 border border-white/[0.08] focus-within:border-zinc-500 rounded-lg px-2.5 sm:px-3 py-1.5 transition-colors"
         >
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Senpai a question about this topic..."
-            className="flex-1 bg-transparent text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 outline-none"
+            placeholder="Ask Senpai about this topic..."
+            className="flex-1 bg-transparent text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 outline-none min-w-0"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="p-1.5 rounded-md bg-white text-black hover:bg-zinc-200 disabled:opacity-30 transition-colors cursor-pointer"
+            className="p-1.5 rounded-md bg-white text-black hover:bg-zinc-200 disabled:opacity-30 transition-colors cursor-pointer shrink-0"
           >
             <ArrowUp className="w-3.5 h-3.5" />
           </button>

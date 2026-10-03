@@ -23,21 +23,21 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
   return (
     <div className="space-y-4">
       {/* Topic Header */}
-      <div className="p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
-        <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 mb-1.5">
+      <div className="p-4 sm:p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
+        <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 mb-1 sm:mb-1.5">
           {topic.subject || 'Computer Science'}
         </div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1.5">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1 sm:mb-1.5">
           {topic.title}
         </h1>
-        <p className="text-sm text-zinc-400 font-medium">
+        <p className="text-xs sm:text-sm text-zinc-400 font-medium">
           {topic.metaphorTitle}
         </p>
       </div>
 
       {/* The Anime Mental Model */}
-      <div className="p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
-        <div className="flex items-center justify-between gap-2 mb-3">
+      <div className="p-4 sm:p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
+        <div className="flex items-center justify-between gap-2 mb-2.5 sm:mb-3">
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
             Anime Mental Model
           </span>
@@ -49,26 +49,26 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
-        <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-line font-normal">
+        <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line font-normal">
           {topic.metaphorStory}
         </p>
       </div>
 
       {/* Academic Definition & Principles */}
-      <div className="p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
-        <span className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2.5">
+      <div className="p-4 sm:p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
+        <span className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2 sm:mb-2.5">
           Academic Concept & Properties
         </span>
-        <p className="text-sm text-zinc-300 leading-relaxed mb-4">
+        <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-3.5 sm:mb-4">
           {topic.academicConcept}
         </p>
 
         {topic.keyTakeaways && topic.keyTakeaways.length > 0 && (
-          <div className="border-t border-white/[0.06] pt-4">
-            <span className="block text-[11px] font-mono uppercase tracking-wider text-zinc-500 mb-2.5">
+          <div className="border-t border-white/[0.06] pt-3 sm:pt-4">
+            <span className="block text-[11px] font-mono uppercase tracking-wider text-zinc-500 mb-2 sm:mb-2.5">
               Core Invariants
             </span>
-            <ul className="space-y-2 text-xs sm:text-sm text-zinc-300">
+            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-zinc-300">
               {topic.keyTakeaways.map((takeaway, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <span className="text-zinc-500 select-none">•</span>
@@ -82,7 +82,7 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
 
       {/* Active Recall Quiz */}
       {quiz && (
-        <div className="p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
+        <div className="p-4 sm:p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Active Recall Check

@@ -7,10 +7,13 @@ import CueCardsDeck from './components/CueCardsDeck';
 import IngestModal from './components/IngestModal';
 import SettingsModal from './components/SettingsModal';
 
+import { Image as ImageIcon, BookOpen, MessageSquare } from 'lucide-react';
+
 export default function App() {
   const [topics, setTopics] = useState([]);
   const [currentTopicId, setCurrentTopicId] = useState('');
-  const [activeTab, setActiveTab] = useState('metaphor'); // 'metaphor' | 'chat'
+  const [mobileTab, setMobileTab] = useState('visuals'); // 'visuals' | 'metaphor' | 'chat'
+  const [desktopTab, setDesktopTab] = useState('metaphor'); // 'metaphor' | 'chat'
   const [thinkingLevel, setThinkingLevel] = useState('medium');
   const [customPrompt, setCustomPrompt] = useState('');
   const [isIngestOpen, setIsIngestOpen] = useState(false);
@@ -42,13 +45,15 @@ export default function App() {
 
   const handleAskSenpai = (promptText) => {
     setCustomPrompt(promptText);
-    setActiveTab('chat');
+    setMobileTab('chat');
+    setDesktopTab('chat');
   };
 
   const handleTopicCreated = (newTopic) => {
     setTopics((prev) => [newTopic, ...prev]);
     setCurrentTopicId(newTopic.id);
-    setActiveTab('metaphor');
+    setMobileTab('visuals');
+    setDesktopTab('metaphor');
   };
 
   return (
@@ -63,17 +68,84 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
-        {/* Split Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-5">
+        {/* Mobile Navigation Segment Controller (< lg) */}
+        <div className="flex lg:hidden bg-zinc-900 border border-white/[0.08] rounded-xl p-1 w-full shadow-lg">
+          <button
+            onClick={() => setMobileTab('visuals')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              mobileTab === 'visuals'
+                ? 'bg-zinc-800 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5 shrink-0" />
+            <span>Visuals</span>
+          </button>
+
+          <button
+            onClick={() => setMobileTab('metaphor')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              mobileTab === 'metaphor'
+                ? 'bg-zinc-800 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5 shrink-0" />
+            <span>Concept</span>
+          </button>
+
+          <button
+            onClick={() => setMobileTab('chat')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              mobileTab === 'chat'
+                ? 'bg-zinc-800 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+            <span>SenpaiAI</span>
+          </button>
+        </div>
+
+        {/* Mobile View Render (< lg) */}
+        <div className="block lg:hidden">
+          {mobileTab === 'visuals' && (
+            <div className="space-y-4 animate-fadeIn">
+              <VisualCanvas topic={currentTopic} onAskSenpai={handleAskSenpai} />
+              <CueCardsDeck topic={currentTopic} />
+            </div>
+          )}
+
+          {mobileTab === 'metaphor' && (
+            <div className="animate-fadeIn">
+              <MetaphorCard topic={currentTopic} onAskSenpai={handleAskSenpai} />
+            </div>
+          )}
+
+          {mobileTab === 'chat' && (
+            <div className="animate-fadeIn">
+              <SocraticChat
+                topic={currentTopic}
+                thinkingLevel={thinkingLevel}
+                setThinkingLevel={setThinkingLevel}
+                customPrompt={customPrompt}
+                onClearCustomPrompt={() => setCustomPrompt('')}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Split Grid (>= lg) */}
+        <div className="hidden lg:grid lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Concept Deconstruction & Chat */}
           <div className="lg:col-span-6 space-y-4">
-            {/* Minimal Segment Toggle */}
-            <div className="flex bg-zinc-900 border border-white/[0.08] rounded-lg p-1 w-full sm:w-fit">
+            {/* Desktop Segment Toggle */}
+            <div className="flex bg-zinc-900 border border-white/[0.08] rounded-lg p-1 w-fit">
               <button
-                onClick={() => setActiveTab('metaphor')}
-                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
-                  activeTab === 'metaphor'
+                onClick={() => setDesktopTab('metaphor')}
+                className={`px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
+                  desktopTab === 'metaphor'
                     ? 'bg-zinc-800 text-white shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
@@ -82,9 +154,9 @@ export default function App() {
               </button>
 
               <button
-                onClick={() => setActiveTab('chat')}
-                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
-                  activeTab === 'chat'
+                onClick={() => setDesktopTab('chat')}
+                className={`px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
+                  desktopTab === 'chat'
                     ? 'bg-zinc-800 text-white shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
@@ -93,8 +165,8 @@ export default function App() {
               </button>
             </div>
 
-            {/* Tab View */}
-            {activeTab === 'metaphor' ? (
+            {/* Desktop Tab View */}
+            {desktopTab === 'metaphor' ? (
               <MetaphorCard topic={currentTopic} onAskSenpai={handleAskSenpai} />
             ) : (
               <SocraticChat

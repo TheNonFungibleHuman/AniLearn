@@ -73,17 +73,17 @@ export default function IngestModal({ isOpen, onClose, onTopicCreated }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative w-full max-w-xl rounded-xl bg-zinc-950 border border-white/[0.08] shadow-2xl p-6 animate-fadeIn">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div className="relative w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-xl bg-zinc-950 border border-white/[0.08] shadow-2xl p-4 sm:p-6 animate-fadeIn">
         <button
           onClick={onClose}
           disabled={isProcessing}
-          className="absolute top-5 right-5 p-1.5 rounded-md hover:bg-zinc-850 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+          className="absolute top-4 sm:top-5 right-4 sm:right-5 p-1.5 rounded-md hover:bg-zinc-850 text-zinc-400 hover:text-white transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
 
-        <div className="mb-5">
+        <div className="mb-4 sm:mb-5">
           <h2 className="text-lg font-bold tracking-tight text-white mb-1">
             Deconstruct a Topic
           </h2>

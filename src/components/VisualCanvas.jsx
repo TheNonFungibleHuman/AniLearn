@@ -17,44 +17,44 @@ export default function VisualCanvas({ topic, onAskSenpai }) {
       {/* Canvas Card */}
       <div className="rounded-xl bg-zinc-950 border border-white/[0.08] overflow-hidden">
         {/* Sleek Toolbar */}
-        <div className="px-4 py-2.5 border-b border-white/[0.08] bg-zinc-900/50 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <span className="font-medium text-zinc-200">Infographic Diagram</span>
+        <div className="px-3 sm:px-4 py-2 sm:py-2.5 border-b border-white/[0.08] bg-zinc-900/50 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-zinc-400 min-w-0">
+            <span className="font-medium text-zinc-200">Infographic</span>
             <span>•</span>
-            <span className="capitalize">{topic.style || 'Anime'} Style</span>
+            <span className="capitalize truncate">{topic.style || 'Anime'}</span>
           </div>
 
           {/* Minimal Controls */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             <button
               onClick={handleZoomOut}
               title="Zoom out"
-              className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+              className="p-1 sm:p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
-            <span className="text-xs font-mono text-zinc-400 px-1.5 min-w-[42px] text-center">
+            <span className="text-[11px] sm:text-xs font-mono text-zinc-400 px-1 min-w-[36px] sm:min-w-[42px] text-center">
               {Math.round(zoom * 100)}%
             </span>
             <button
               onClick={handleZoomIn}
               title="Zoom in"
-              className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+              className="p-1 sm:p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={handleResetZoom}
               title="Reset zoom"
-              className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+              className="p-1 sm:p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
-            <div className="w-[1px] h-3.5 bg-zinc-800 mx-1" />
+            <div className="w-[1px] h-3.5 bg-zinc-800 mx-0.5 sm:mx-1" />
             <button
               onClick={() => setIsFullscreen(true)}
               title="Fullscreen"
-              className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+              className="p-1 sm:p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
             >
               <Maximize2 className="w-3.5 h-3.5" />
             </button>
@@ -64,7 +64,7 @@ export default function VisualCanvas({ topic, onAskSenpai }) {
               target="_blank"
               rel="noreferrer"
               title="Download image"
-              className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+              className="p-1 sm:p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
             </a>
@@ -72,7 +72,7 @@ export default function VisualCanvas({ topic, onAskSenpai }) {
         </div>
 
         {/* Viewport & Image */}
-        <div className="relative min-h-[360px] max-h-[500px] bg-black flex items-center justify-center overflow-auto p-3">
+        <div className="relative min-h-[250px] sm:min-h-[360px] max-h-[500px] bg-black flex items-center justify-center overflow-auto p-2 sm:p-3">
           <div
             className="transition-transform duration-150 ease-out origin-center flex items-center justify-center max-w-full"
             style={{ transform: `scale(${zoom})` }}
@@ -88,12 +88,12 @@ export default function VisualCanvas({ topic, onAskSenpai }) {
 
       {/* Diagram Hotspots */}
       {topic.hotspots && topic.hotspots.length > 0 && (
-        <div className="p-4 rounded-xl bg-zinc-950 border border-white/[0.08]">
-          <div className="flex items-center justify-between mb-2.5">
+        <div className="p-3.5 sm:p-4 rounded-xl bg-zinc-950 border border-white/[0.08]">
+          <div className="flex items-center justify-between mb-2 sm:mb-2.5">
             <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Interactive Hotspots
             </span>
-            <span className="text-[11px] text-zinc-500">Select a part to inspect</span>
+            <span className="text-[11px] text-zinc-500">Tap to inspect</span>
           </div>
 
           <div className="flex flex-wrap gap-1.5 mb-3">
