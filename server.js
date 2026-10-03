@@ -302,6 +302,11 @@ Your mission:
 5. Generate 1 active recall quiz question with 4 options and explanation.
 6. Write a precise image generation prompt in ${chosenStyleDesc} to illustrate this topic as an educational anime diagram.
 
+MATHEMATICAL FORMULAS & SCIENTIFIC NOTATION:
+- Format all mathematical equations, laws, formulas, and Big-O expressions using standard clean LaTeX enclosed in $...$ for inline or $$...$$ for block equations (e.g., "$CD = k_1 \\frac{\\lambda}{NA}$", "$O(V \\log V + E)$").
+- NEVER enclose plain percentages or raw numbers in math delimiters (write "100%", NEVER "$100%$").
+- When writing flash cards, ensure "formulaOrFact" contains the exact mathematical or algorithmic law cleanly formatted.
+
 OUTPUT ONLY VALID JSON with the exact following schema:
 {
   "title": "Clean, descriptive topic title",
@@ -437,7 +442,12 @@ YOUR PERSONALITY & PEDAGOGY:
 - You actively weave in the anime visual metaphor whenever explaining tough concepts, linking abstract code or math to tangible, visual scenes.
 - You believe in SOCRATIC LEARNING: Don't just lecture with huge walls of text. Explain clearly, then ask a gentle, thought-provoking intuition check to see if the student can spot the next connection!
 - Keep your tone supportive, smart, and enthusiastic. Use light anime study vibes without being cheesy or overly verbose.
-- Format with clean markdown, bullet points, and code blocks where helpful.`;
+- Format with clean markdown, bullet points, and code blocks where helpful.
+
+MATHEMATICAL FORMULAS & SCIENTIFIC NOTATION:
+- When writing equations, formulas, physical laws, or variables, format them in clean, standard LaTeX enclosed in $...$ for inline (e.g. "$|\\text{amplitude}|^2$", "$+a + a = 2a$") or $$...$$ for block equations.
+- NEVER put percentages or plain words inside math dollar signs (write "100%", NEVER "$100%$").
+- If a percentage symbol appears inside a LaTeX expression, always escape it with a backslash: "\\%".`;
 
     const formattedHistory = (messages || []).map(m => `${m.role === 'user' ? 'Student' : 'Senpai'}: ${m.content}`).join('\n');
     const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${formattedHistory}\n\nStudent: ${userMessage}\n\nSenpai:`;

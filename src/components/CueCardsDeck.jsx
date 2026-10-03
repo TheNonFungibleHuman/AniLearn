@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { RotateCcw, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import MathRenderer from './MathRenderer';
 
 export default function CueCardsDeck({ topic }) {
   const cards = topic?.visualCueCards || [];
@@ -53,18 +54,6 @@ export default function CueCardsDeck({ topic }) {
   const currentCard = cards[currentIndex];
   const isFlipped = Boolean(flippedCards[currentCard?.id]);
 
-  const formatFormula = (text) => {
-    if (!text) return '';
-    const superscripts = {
-      '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-      '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
-      '+': '⁺', '-': '⁻', 'n': 'ⁿ', 'x': 'ˣ'
-    };
-    return text.replace(/\^([0-9+\-nx]+)/g, (_, exp) => {
-      return exp.split('').map((c) => superscripts[c] || c).join('');
-    });
-  };
-
   return (
     <div className="p-4 sm:p-5 rounded-xl bg-zinc-950 border border-white/[0.08]">
       {/* Header */}
@@ -100,73 +89,128 @@ export default function CueCardsDeck({ topic }) {
         </div>
       </div>
 
-      {/* Clean Interactive Card */}
+      {/* True 3D Flip Card Container */}
       <div
+        className="perspective-1000 w-full min-h-[220px] sm:min-h-[230px] cursor-pointer select-none group"
         onClick={() => toggleFlip(currentCard.id)}
-        className="relative min-h-[200px] rounded-lg p-4 sm:p-5 bg-zinc-900 border border-white/[0.08] hover:border-white/[0.16] cursor-pointer transition-colors select-none flex flex-col justify-between"
       >
-        <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono mb-2">
-          <span>{isFlipped ? 'ACTIVE RECALL & INTUITION' : 'VISUAL ANCHOR & FORMULA'}</span>
-          <span className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors">
-            <RotateCcw className="w-3 h-3" />
-            {isFlipped ? 'Show Anchor' : 'Flip to Recall'}
-          </span>
-        </div>
+        <div
+          className={`relative w-full min-h-[220px] sm:min-h-[230px] preserve-3d card-flip-transition ${
+            isFlipped ? 'rotate-y-180' : ''
+          }`}
+        >
+          {/* FRONT FACE: VISUAL ANCHOR & FORMULA */}
+          <div className="absolute inset-0 w-full h-full rounded-lg p-4 sm:p-5 bg-zinc-900 border border-white/[0.08] group-hover:border-white/[0.16] transition-colors backface-hidden flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono mb-2">
+                <span>VISUAL ANCHOR & FORMULA</span>
+                <span className="flex items-center gap-1 text-zinc-400 group-hover:text-white transition-colors">
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Tap to Flip</span>
+                </span>
+              </div>
 
-        <h4 className="text-sm sm:text-base font-semibold text-white mb-2.5">
-          {currentCard.title}
-        </h4>
+              <h4 className="text-sm sm:text-base font-semibold text-white mb-2.5">
+                {currentCard.title}
+              </h4>
 
-        {!isFlipped ? (
-          <div className="my-auto py-1 space-y-2.5">
-            <div className="flex items-start gap-2 text-xs text-zinc-300 bg-zinc-950 p-2.5 rounded-md border border-white/[0.06]">
-              <Eye className="w-3.5 h-3.5 text-zinc-400 shrink-0 mt-0.5" />
-              <span>{currentCard.visualAnchor}</span>
+              <div className="space-y-2.5">
+                <div className="flex items-start gap-2 text-xs text-zinc-300 bg-zinc-950 p-2.5 rounded-md border border-white/[0.06]">
+                  <Eye className="w-3.5 h-3.5 text-zinc-400 shrink-0 mt-0.5" />
+                  <span>{currentCard.visualAnchor}</span>
+                </div>
+
+                <div className="p-2.5 rounded bg-black/60 border border-white/[0.04] text-xs text-zinc-200 overflow-x-auto flex items-center gap-2">
+                  <span className="text-[10px] text-zinc-500 uppercase font-sans font-medium shrink-0">Core Law:</span>
+                  <div className="text-zinc-100 text-sm py-0.5">
+                    <MathRenderer content={currentCard.formulaOrFact} inline />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="p-2.5 rounded bg-black/60 border border-white/[0.04] font-mono text-xs text-zinc-200 overflow-x-auto">
-              <span className="text-[10px] text-zinc-500 uppercase mr-2 font-sans font-medium">Core Law:</span>
-              {formatFormula(currentCard.formulaOrFact)}
-            </div>
-          </div>
-        ) : (
-          <div className="my-auto py-1 space-y-2.5">
-            <div className="p-2.5 rounded bg-zinc-950/70 border border-white/[0.06]">
-              <span className="text-[10px] font-mono uppercase text-zinc-400 block mb-1">
-                Active Question:
+
+            {/* Bottom progress dots */}
+            <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-2.5 mt-2 border-t border-white/[0.06]">
+              <span className="text-[10px] font-mono uppercase text-zinc-500">
+                Cognitive Anchor
               </span>
-              <p className="text-xs sm:text-sm font-medium text-zinc-100">
-                {currentCard.intuitionQuestion}
-              </p>
-            </div>
-            <div className="p-2.5 rounded bg-zinc-950 border border-white/[0.06] text-xs text-zinc-300 leading-relaxed">
-              <span className="font-semibold text-white">Recall Answer: </span>
-              {currentCard.answer}
+              <div className="flex gap-1.5 items-center">
+                {cards.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentIndex(i);
+                    }}
+                    aria-label={`Go to card ${i + 1}`}
+                    className={`transition-all rounded-full cursor-pointer ${
+                      i === currentIndex
+                        ? 'w-4 h-1.5 bg-white'
+                        : 'w-1.5 h-1.5 bg-zinc-700 hover:bg-zinc-500'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Bottom progress dots */}
-        <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-2.5 mt-2 border-t border-white/[0.06]">
-          <span className="text-[10px] font-mono uppercase text-zinc-500">
-            {isFlipped ? 'Self-Check Recall' : 'Cognitive Anchor'}
-          </span>
-          <div className="flex gap-1.5 items-center">
-            {cards.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentIndex(i);
-                }}
-                aria-label={`Go to card ${i + 1}`}
-                className={`transition-all rounded-full cursor-pointer ${
-                  i === currentIndex
-                    ? 'w-4 h-1.5 bg-white'
-                    : 'w-1.5 h-1.5 bg-zinc-700 hover:bg-zinc-500'
-                }`}
-              />
-            ))}
+          {/* BACK FACE: ACTIVE RECALL & INTUITION */}
+          <div className="absolute inset-0 w-full h-full rounded-lg p-4 sm:p-5 bg-zinc-900 border border-white/[0.08] group-hover:border-white/[0.16] transition-colors backface-hidden rotate-y-180 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono mb-2">
+                <span>ACTIVE RECALL & INTUITION</span>
+                <span className="flex items-center gap-1 text-zinc-400 group-hover:text-white transition-colors">
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Show Anchor</span>
+                </span>
+              </div>
+
+              <h4 className="text-sm sm:text-base font-semibold text-white mb-2.5">
+                {currentCard.title}
+              </h4>
+
+              <div className="space-y-2.5">
+                <div className="p-2.5 rounded bg-zinc-950/70 border border-white/[0.06]">
+                  <span className="text-[10px] font-mono uppercase text-zinc-400 block mb-1">
+                    Active Question:
+                  </span>
+                  <div className="text-xs sm:text-sm font-medium text-zinc-100">
+                    <MathRenderer content={currentCard.intuitionQuestion} />
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded bg-zinc-950 border border-white/[0.06] text-xs text-zinc-300 leading-relaxed">
+                  <span className="font-semibold text-white">Recall Answer: </span>
+                  <MathRenderer content={currentCard.answer} inline />
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom progress dots */}
+            <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-2.5 mt-2 border-t border-white/[0.06]">
+              <span className="text-[10px] font-mono uppercase text-zinc-500">
+                Self-Check Recall
+              </span>
+              <div className="flex gap-1.5 items-center">
+                {cards.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentIndex(i);
+                    }}
+                    aria-label={`Go to card ${i + 1}`}
+                    className={`transition-all rounded-full cursor-pointer ${
+                      i === currentIndex
+                        ? 'w-4 h-1.5 bg-white'
+                        : 'w-1.5 h-1.5 bg-zinc-700 hover:bg-zinc-500'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

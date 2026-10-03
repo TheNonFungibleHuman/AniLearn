@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, Check, X, RotateCcw } from 'lucide-react';
+import MathRenderer from './MathRenderer';
 
 export default function MetaphorCard({ topic, onAskSenpai }) {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -49,9 +50,9 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
-        <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line font-normal">
-          {topic.metaphorStory}
-        </p>
+        <div className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
+          <MathRenderer content={topic.metaphorStory} />
+        </div>
       </div>
 
       {/* Academic Definition & Principles */}
@@ -59,9 +60,9 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
         <span className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2 sm:mb-2.5">
           Academic Concept & Properties
         </span>
-        <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-3.5 sm:mb-4">
-          {topic.academicConcept}
-        </p>
+        <div className="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-3.5 sm:mb-4">
+          <MathRenderer content={topic.academicConcept} />
+        </div>
 
         {topic.keyTakeaways && topic.keyTakeaways.length > 0 && (
           <div className="border-t border-white/[0.06] pt-3 sm:pt-4">
@@ -72,7 +73,7 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
               {topic.keyTakeaways.map((takeaway, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <span className="text-zinc-500 select-none">•</span>
-                  <span>{takeaway}</span>
+                  <MathRenderer content={takeaway} inline />
                 </li>
               ))}
             </ul>
@@ -98,9 +99,9 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
             )}
           </div>
 
-          <p className="text-sm font-medium text-zinc-100 mb-3.5">
-            {quiz.question}
-          </p>
+          <div className="text-sm font-medium text-zinc-100 mb-3.5">
+            <MathRenderer content={quiz.question} />
+          </div>
 
           <div className="space-y-2">
             {quiz.options.map((opt, idx) => {
@@ -125,7 +126,9 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
                   disabled={hasAnswered}
                   className={`w-full text-left p-3 rounded-lg border text-xs sm:text-sm flex items-center justify-between gap-3 transition-colors cursor-pointer ${itemStyle}`}
                 >
-                  <span>{opt}</span>
+                  <div className="flex-1">
+                    <MathRenderer content={opt} inline />
+                  </div>
                   {hasAnswered && isCorrect && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
                   {hasAnswered && isSelected && !isCorrect && <X className="w-4 h-4 text-rose-400 shrink-0" />}
                 </button>
@@ -138,7 +141,7 @@ export default function MetaphorCard({ topic, onAskSenpai }) {
               <strong className={selectedOption === quiz.correctIndex ? 'text-emerald-400' : 'text-zinc-200'}>
                 {selectedOption === quiz.correctIndex ? 'Correct: ' : 'Explanation: '}
               </strong>
-              {quiz.explanation}
+              <MathRenderer content={quiz.explanation} inline />
             </div>
           )}
         </div>

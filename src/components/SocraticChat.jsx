@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { Send, ArrowUp, Loader2 } from 'lucide-react';
+import { sanitizeMathText } from '../utils/mathUtils';
 
 export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, customPrompt, onClearCustomPrompt }) {
   const [messages, setMessages] = useState([
@@ -152,11 +155,19 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
                 }`}
               >
                 {isUser ? (
-                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                  <div className="whitespace-pre-wrap">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
+                    >
+                      {sanitizeMathText(msg.content)}
+                    </ReactMarkdown>
+                  </div>
                 ) : (
                   <div className="markdown-content space-y-2">
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
                       components={{
                         strong: ({ node, ...props }) => (
                           <strong className="font-semibold text-white" {...props} />
@@ -191,7 +202,7 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
                         )
                       }}
                     >
-                      {msg.content}
+                      {sanitizeMathText(msg.content)}
                     </ReactMarkdown>
                   </div>
                 )}
