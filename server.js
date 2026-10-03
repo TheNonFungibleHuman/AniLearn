@@ -77,16 +77,42 @@ function saveTopic(topic) {
 }
 
 // Helper to call Google Gemini with resilient model cascade
-async function callGeminiText(prompt, thinkingLevel = 'medium', customKey = null) {
+async function callGeminiText(prompt, thinkingLevel = 'medium', customKey = null, isJson = false) {
   const key = customKey || GEMINI_API_KEY;
-  const models = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3-flash-preview', 'gemini-flash-latest'];
+  const models = [
+    'gemini-3.8-flash',
+    'gemini-3.7-flash',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash',
+    'gemini-3-flash-preview',
+    'gemini-flash-lite-latest'
+  ];
   let lastError = null;
+
+  const thinkingBudgets = {
+    low: 1024,
+    medium: 2048,
+    high: 4096
+  };
+
+  const generationConfig = {
+    maxOutputTokens: 16384,
+    temperature: isJson ? 0.7 : 0.8
+  };
+
+  if (isJson) {
+    generationConfig.responseMimeType = 'application/json';
+  }
+
+  const budget = thinkingBudgets[thinkingLevel] || 2048;
+  generationConfig.thinkingConfig = { thinkingBudget: budget };
 
   for (const model of models) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
       const payload = {
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig
       };
 
       const response = await fetch(url, {
@@ -107,7 +133,7 @@ async function callGeminiText(prompt, thinkingLevel = 'medium', customKey = null
         }
       } else {
         const errText = await response.text();
-        console.warn(`Model ${model} returned error status ${response.status}:`, errText.substring(0, 100));
+        console.warn(`Model ${model} returned error status ${response.status}:`, errText.substring(0, 120));
         lastError = new Error(`${model} Error: ${errText}`);
       }
     } catch (e) {
@@ -119,7 +145,7 @@ async function callGeminiText(prompt, thinkingLevel = 'medium', customKey = null
   throw lastError || new Error('All Gemini models failed.');
 }
 
-// Helper to generate image via Nano Banana or fallback AI
+// Helper to generate image via Nano Banana Pro / Google Gemini Image API
 async function generateAnimeImage(prompt, topicId, style = 'cyberpunk', customKey = null) {
   const key = customKey || GEMINI_API_KEY;
   const fileName = `${topicId}_${Date.now()}.jpg`;
@@ -127,19 +153,26 @@ async function generateAnimeImage(prompt, topicId, style = 'cyberpunk', customKe
   const publicUrl = `/generated/${fileName}`;
 
   const stylePrefixes = {
-    cyberpunk: 'Cyberpunk anime technical blueprint poster, holographic HUD schematics, circuit diagrams, dark obsidian grid, crisp cyan and amber text labels',
-    shinkai: 'Makoto Shinkai anime educational infographic diagram poster, celestial twilight lighting, luminous labeled nodes, CoMix Wave Films engineering clarity',
-    guild: 'Shonen Guild anime educational diagram poster, illuminated parchment spell schematics, bold technical linework, annotated magical formula flows',
-    ghibli: 'Studio Ghibli style educational illustrated schematic diagram, warm hand-painted storybook annotations, clear visual flow'
+    cyberpunk: 'Cyberpunk anime key visual, futuristic cleanroom semiconductor fabrication lab, glowing holographic cyan and neon purple HUD schematics, anime engineer inspecting glowing microchips, Ghost in the Shell anime aesthetic, cinematic 8k masterpiece',
+    shinkai: 'Makoto Shinkai anime educational infographic diagram poster, celestial twilight lighting, luminous labeled nodes, CoMix Wave Films engineering clarity, glowing crystals, 8k resolution',
+    guild: 'Fantasy anime key visual, ancient alchemist guild workshop, glowing magical runes and illuminated spell schematics, Frieren and Fullmetal Alchemist anime aesthetic, rich detailed anime illustration',
+    ghibli: 'Studio Ghibli style anime illustration, whimsical clockwork and quartz crystal workshop, warm watercolor textures, gentle sunlight through dusty windows, Hayao Miyazaki aesthetic'
   };
 
-  const styleDirectives = stylePrefixes[style] || stylePrefixes.cyberpunk;
-  const infographicPrompt = `${styleDirectives}. ${prompt}. Highly detailed educational infographic poster, multi-panel technical diagram layout, labeled schematics, step-by-step flowchart, legible tables, crisp visual hierarchy, no blurry closeup portraits, no generic character headshots, 4k resolution.`;
+  const styleDirectives = stylePrefixes[style] || stylePrefixes.shinkai;
+  const cleanPrompt = `${styleDirectives}. ${prompt}. Detailed anime visual concept, rich pedagogical clarity, zero watermarks, 4k resolution.`;
 
-  // Attempt 1: Google Nano Banana Pro / Gemini Image API
-  const imageModels = ['nano-banana-pro-preview', 'gemini-3.1-flash-image', 'gemini-3-pro-image'];
+  // Primary: Google Nano Banana Pro / Gemini Image API
+  const imageModels = [
+    'nano-banana-pro-preview',
+    'gemini-3-pro-image',
+    'gemini-3.1-flash-image',
+    'gemini-2.5-flash-image'
+  ];
+
   for (const model of imageModels) {
     try {
+      console.log(`Generating educational visual with Google ${model}...`);
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
       const res = await fetch(url, {
         method: 'POST',
@@ -148,7 +181,7 @@ async function generateAnimeImage(prompt, topicId, style = 'cyberpunk', customKe
           'x-goog-api-key': key
         },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: infographicPrompt }] }]
+          contents: [{ parts: [{ text: cleanPrompt }] }]
         })
       });
 
@@ -165,34 +198,22 @@ async function generateAnimeImage(prompt, topicId, style = 'cyberpunk', customKe
         }
       } else {
         const errText = await res.text();
-        console.warn(`Model ${model} returned non-200 (quota limit):`, errText.substring(0, 100));
+        console.warn(`Model ${model} returned non-200:`, errText.substring(0, 120));
       }
     } catch (e) {
       console.warn(`Error attempting ${model}:`, e.message);
     }
   }
 
-  // Attempt 2: High-speed Technical Diagram Engine
-  console.log('Generating educational infographic via Technical Diagram Engine:', topicId);
-  try {
-    const encodedPrompt = encodeURIComponent(infographicPrompt);
-    // Use flux model with width=1280&height=720 for crisp widescreen infographic diagram
-    const fallbackUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1280&height=720&nologo=true&seed=${Math.floor(Math.random() * 1000000)}&model=flux`;
-    
-    const imgRes = await fetch(fallbackUrl);
-    if (imgRes.ok) {
-      const arrayBuffer = await imgRes.arrayBuffer();
-      fs.writeFileSync(filePath, Buffer.from(arrayBuffer));
-      console.log(`Generated educational infographic: ${publicUrl}`);
-      return publicUrl;
-    }
-  } catch (e) {
-    console.error('Fallback image generation failed:', e.message);
-  }
-
-  // Attempt 3: Default to closest pre-rendered sample
-  const defaultSample = '/samples/ascii_cyberpunk.jpg';
-  return defaultSample;
+  // Fallback: Curated high-resolution anime pedagogical artwork for style
+  console.log(`Serving curated visual for style ${style}:`, topicId);
+  const curatedStyleSamples = {
+    shinkai: '/samples/bst_shinkai.jpg',
+    cyberpunk: '/samples/ascii_cyberpunk.jpg',
+    guild: '/samples/neural_shinkai.jpg',
+    ghibli: '/samples/dijkstra_shinkai.jpg'
+  };
+  return curatedStyleSamples[style] || '/samples/ascii_cyberpunk.jpg';
 }
 
 // --- API ROUTES ---
@@ -339,15 +360,27 @@ OUTPUT ONLY VALID JSON with the exact following schema:
 }`;
 
     console.log(`Deconstructing topic with Gemini 3.8 Flash (Thinking Level: ${thinkingLevel})...`);
-    const rawAiResponse = await callGeminiText(systemPrompt, thinkingLevel, customKey);
+    const rawAiResponse = await callGeminiText(systemPrompt, thinkingLevel, customKey, true);
 
-    // Extract JSON from response
-    let jsonMatch = rawAiResponse.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('AI did not return valid JSON. Raw output: ' + rawAiResponse.substring(0, 200));
+    // Extract JSON from response with resilient parsing
+    let topicData;
+    try {
+      topicData = JSON.parse(rawAiResponse);
+    } catch {
+      const jsonMatch = rawAiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          topicData = JSON.parse(jsonMatch[0]);
+        } catch {
+          // Attempt to fix unclosed trailing brackets if cut off
+          let repaired = jsonMatch[0].trim();
+          if (!repaired.endsWith('}')) repaired += '"}';
+          topicData = JSON.parse(repaired);
+        }
+      } else {
+        throw new Error('AI did not return valid JSON. Raw output: ' + rawAiResponse.substring(0, 200));
+      }
     }
-
-    const topicData = JSON.parse(jsonMatch[0]);
     topicData.id = topicId;
     topicData.style = style;
     topicData.createdAt = new Date().toISOString();
@@ -397,7 +430,7 @@ YOUR PERSONALITY & PEDAGOGY:
     const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${formattedHistory}\n\nStudent: ${userMessage}\n\nSenpai:`;
 
     console.log('Generating Socratic response with Gemini 3.8 Flash...');
-    const reply = await callGeminiText(fullPrompt, thinkingLevel, customKey);
+    const reply = await callGeminiText(fullPrompt, thinkingLevel, customKey, false);
 
     res.json({ reply });
   } catch (error) {
