@@ -6,79 +6,80 @@
     "style": "shinkai",
     "imageUrl": "/samples/dijkstra_shinkai.jpg",
     "metaphorTitle": "The Twilight Lantern Sky-Route Navigator",
-    "metaphorStory": "Imagine an anime courier standing on a twilight hilltop with a glowing lantern. Her mission is to deliver an urgent message to the distant celestial haven (Node G). Rather than recklessly rushing down unknown paths, she projects a radiant beacon across every neighboring junction. At each step, she greedily commits to the path with the smallest cumulative light-distance, permanently locking it in as verified before expanding her aura to the next closest beacon.",
-    "academicConcept": "Dijkstra's algorithm finds the shortest path between nodes in a weighted graph with non-negative edge weights. It maintains a set of visited vertices and a priority queue (min-heap) of tentative distances from the source. At each iteration, the unvisited vertex with the minimum distance is extracted, and the tentative distances of its adjacent neighbors are updated (relaxed). Time complexity with a Fibonacci heap is O(V log V + E) or O((V + E) log V) with a binary heap.",
+    "metaphorStory": "Imagine an anime courier standing on a twilight hilltop with a glowing lantern. Her mission is to deliver an urgent message to the distant celestial haven (Node G). Rather than recklessly rushing down unknown paths, she pours water across every neighboring road. The water ripples outwards at an even speed. Whichever junction gets wet first is mathematically guaranteed to be the closest possible junction! Step by step, she locks in each verified beacon until reaching destination G.",
+    "academicConcept": "### 1. First-Principles Physical Intuition (ELI5)\nImagine you are in a strange city connected by roads, and you want to find the fastest route from your home to school.\n\nHow does **Dijkstra's Algorithm** find the guaranteed shortest path?\n**The Expanding Water Ripple:**\nImagine pouring water onto your home node. Water flows along all roads at constant speed.\n- Which junction gets wet first? The one connected by the shortest road!\n- Once water reaches a junction, can water taking some long, roundabout detour arrive there *earlier*? **No!** Because all roads have positive length—roads cannot give you back time.\n- Therefore, the moment water touches an unvisited junction, its shortest travel time from home is **permanently finalized**!\n\n**The Algorithm Steps:**\n1. Put all junctions in your notebook with distance $\\infty$, except your starting house ($0$).\n2. Look at all unvisited junctions, and greedily pick the one with the smallest distance recorded so far.\n3. Check all its outward roads. If taking this junction as a shortcut reaches a neighboring town faster than previously recorded, update the notebook (**Edge Relaxation**).\n4. Mark this junction as finalized. Repeat until you reach the target!\n\n### 2. The Formal Formula & Exam Invariants\n- **Edge Relaxation Invariant:**\n  $$\\text{if } \\text{dist}[u] + w(u, v) < \\text{dist}[v] \\implies \\text{dist}[v] = \\text{dist}[u] + w(u, v)$$\n  In plain English: \"If reaching town $v$ by walking through town $u$ is faster than our previous best estimate, tighten our estimate to this new shortcut!\"\n- **The Non-Negative Edge Rule:** $\\forall (u, v) \\in E, \\; w(u, v) \\ge 0$. Dijkstra fails if any road has a negative weight (a time-travel wormhole) because a negative edge could retroactively make an already finalized junction cheaper! For negative weights, use **Bellman-Ford**.\n- **Time Complexity:**\n  $$O((V + E) \\log V) \\quad \\text{with a Binary Min-Heap}$$\n  Extracting the closest node takes $O(\\log V)$ for $V$ vertices; updating distances takes $O(\\log V)$ for $E$ edges.",
     "keyTakeaways": [
-      "Greedy Strategy: Always selects the unvisited node with the lowest tentative distance.",
-      "Edge Relaxation: If dist[u] + weight(u, v) < dist[v], update dist[v].",
-      "Invariant: Once a node is visited/settled, its shortest distance from the source is finalized.",
-      "Limitation: Fails with negative edge weights (requires Bellman-Ford instead)."
+      "The Water Ripple Intuition: Water expands outward at constant speed; whichever town gets wet first is guaranteed to have the shortest distance.",
+      "Greedy Invariant: Once an unvisited node with the lowest tentative distance is extracted from the min-heap, its shortest path is permanently finalized.",
+      "Edge Relaxation: If dist[u] + weight(u, v) < dist[v], update dist[v] to tighten the upper bound.",
+      "Negative Weight Limitation: Fails with negative edge weights because they violate the assumption that adding roads only increases distance (use Bellman-Ford instead)."
     ],
     "hotspots": [
       {
         "id": "source-node",
         "label": "Source Node (0)",
         "tag": "Starting Anchor",
-        "explanation": "Distance initialized to 0; all other nodes start at infinity (∞)."
+        "explanation": "Starting point initialized to 0 distance; all other nodes begin at infinity (∞)."
       },
       {
         "id": "relaxation-step",
         "label": "Cyan Luminous Edge (Relaxation)",
         "tag": "Edge Relaxation",
-        "explanation": "Path A -> C (weight 5) is evaluated. If reaching C through A is faster than alternative paths, C's tentative cost is updated."
+        "explanation": "Evaluating whether path through Node A to C (5 + 3 = 8) is shorter than any existing path to C."
       },
       {
         "id": "greedy-min-heap",
         "label": "Min-Heap Selection",
         "tag": "Priority Queue",
-        "explanation": "Out of unvisited nodes, the node with the minimum tentative value is chosen next."
+        "explanation": "Pulls the unvisited node with the smallest distance in O(log V) time."
       },
       {
         "id": "destination-finalized",
-        "label": "Destination (G) Shortest Path: 14",
+        "label": "Destination Finalized (G = 14)",
         "tag": "Optimal Solution",
-        "explanation": "The finalized path: Source (0) -> A (5) -> C (8) -> E (11) -> F (13) -> G (14)."
+        "explanation": "Final shortest path reconstructed backwards: Source (0) -> A (5) -> C (8) -> E (11) -> F (13) -> G (14)."
       }
     ],
     "visualCueCards": [
       {
         "id": "cue-1",
-        "title": "The Relaxation Formula",
-        "visualAnchor": "Lantern light beam connecting Node U to Node V",
-        "formulaOrFact": "if dist[u] + w(u, v) < dist[v] then dist[v] = dist[u] + w(u, v)",
-        "intuitionQuestion": "Why do we say 'relax' an edge?",
-        "answer": "Because we 'loosen' an upper bound on distance, tightening our estimate closer to the true shortest path."
+        "title": "The Edge Relaxation Formula",
+        "visualAnchor": "A glowing cyan light beam tightening a loose measurement string between Node U and Node V.",
+        "formulaOrFact": "\\text{dist}[v] = \\min(\\text{dist}[v], \\; \\text{dist}[u] + w(u, v))",
+        "intuitionQuestion": "Why do computer scientists use the word \"relaxation\"?",
+        "answer": "Imagine an elastic band stretched between towns representing an upper bound on distance. Finding a shorter shortcut releases (relaxes) the tension closer to the true shortest path."
       },
       {
         "id": "cue-2",
         "title": "Why Negative Weights Break Dijkstra",
-        "visualAnchor": "A dark vortex that steals lantern energy retroactively",
-        "formulaOrFact": "Dijkstra assumes visited nodes never need distance reduction.",
-        "intuitionQuestion": "What happens if an edge weight is -10?",
-        "answer": "A previously finalized node could have its distance reduced by taking the negative edge later, violating the greedy invariant."
+        "visualAnchor": "A dark vortex that steals distance backward in time.",
+        "formulaOrFact": "w(u, v) \\ge 0 \\quad \\text{strictly required}",
+        "intuitionQuestion": "What physically breaks in Dijkstra if an edge weight is -10?",
+        "answer": "Dijkstra permanently locks in a node once visited, assuming no future paths can be shorter. A negative edge acts like a time-travel wormhole, making an already finalized node cheaper and shattering the greedy proof."
       },
       {
         "id": "cue-3",
         "title": "Time Complexity Anchor",
-        "visualAnchor": "A binary heap tree floating like starlight",
-        "formulaOrFact": "O((V + E) log V) with Binary Min-Heap",
-        "intuitionQuestion": "Where does the 'log V' factor come from?",
-        "answer": "From extracting the minimum element and updating priority queue keys for up to E edges."
+        "visualAnchor": "A binary tree floating like starlight ordering keys in log V steps.",
+        "formulaOrFact": "O((V + E) \\log V) \\quad \\text{with Binary Min-Heap}",
+        "intuitionQuestion": "Where does the \"log V\" term come from in the runtime?",
+        "answer": "From the Min-Heap priority queue! Every time we pull the closest node or update a neighbor’s distance key, the heap reshuffles in O(log V) height steps."
       }
     ],
     "activeRecallQuiz": [
       {
-        "question": "If Node C is extracted from the min-heap with distance 8, can any later path reduce C's distance in a graph with all non-negative weights?",
+        "question": "If Node C is extracted from the min-heap with distance 8, can any later path reduce C’s distance in a graph with non-negative edge weights?",
         "options": [
-          "No, because all remaining paths have at least distance 8 and edge weights cannot be negative.",
-          "Yes, if a longer path has more intermediate nodes.",
-          "Yes, if the destination node hasn't been visited yet.",
+          "No, because all remaining unvisited nodes already have distance >= 8 and non-negative edges can only add distance.",
+          "Yes, if another path has more intermediate nodes.",
+          "Yes, if the destination node has not been reached yet.",
           "Only if the graph is a directed acyclic graph (DAG)."
         ],
         "correctIndex": 0,
-        "explanation": "Correct! Because all edge weights are >= 0, traversing through any other unvisited node (which already has tentative distance >= 8) can only increase or keep the distance the same."
+        "explanation": "Because all edge weights are >= 0, traversing through any remaining unvisited node (which is already >= 8 away) can only add more distance, never less."
       }
-    ]
+    ],
+    "imagePrompt": "Technical anime infographic diagram illustrating Dijkstra shortest path algorithm with glowing graph nodes, edge relaxation formulas, priority queue min-heap visual."
   },
   {
     "id": "binary-search-tree-balancing",
@@ -87,210 +88,225 @@
     "style": "shinkai",
     "imageUrl": "/samples/bst_shinkai.jpg",
     "metaphorTitle": "The Celestial Yggdrasil of Balanced Runes",
-    "metaphorStory": "Imagine an ancient anime scholar atop an observatory tower gazing at the celestial World Tree of Numbers. Every radiant branch obeys the Sacred Rune Law: any rune to the scholar's left must hold a lesser magnitude, while any rune to the right must hold a greater one. When one side grows heavy with star-nodes, the branches perform an ethereal rotational dance (AVL rotation) to restore equilibrium, ensuring knowledge can always be retrieved in O(log N) steps.",
-    "academicConcept": "A Binary Search Tree (BST) is a hierarchical node-based data structure where each node has at most two children. The left subtree contains only nodes with keys less than the node's key, and the right subtree contains only keys greater. Unbalanced BSTs can degenerate into O(N) linked lists, which self-balancing trees (AVL, Red-Black) solve via tree rotations to guarantee O(log N) search, insertion, and deletion.",
+    "metaphorStory": "Imagine an ancient anime scholar atop an observatory tower gazing at the celestial World Tree of Numbers. Every branch obeys the sacred Rune Rule: any rune to the scholar’s left holds a smaller number; any rune to the right holds a larger one. When one side grows heavy with star-nodes, the branches perform an ethereal rotational swing (AVL rotation) to restore equilibrium, ensuring any answer in the universe can be found in just a handful of hops.",
+    "academicConcept": "### 1. First-Principles Physical Intuition (ELI5)\nImagine playing the guessing game: *\"I am thinking of a number between 1 and 100.\"*\nWhat is your first guess? **50!**\nIf they say *\"Higher!\"*, you instantly throw away all 50 numbers from 1 to 50 in a single second.\n\nA **Binary Search Tree (BST)** is that exact guessing game turned into a visual tree data structure!\n- **The Golden Rule:** For every single node:\n  - Everything in its **Left branch is smaller** ($< \\text{Node}$).\n  - Everything in its **Right branch is bigger** ($> \\text{Node}$).\n\n**What goes wrong? The \"Skewed Stick\" Nightmare:**\nIf you insert numbers already sorted: $1, 2, 3, 4, 5...$ the tree grows in a single straight diagonal line! It degenerates into a linked list. Searching for $5$ now takes $5$ hops ($O(N)$) instead of a binary search!\n\n**The Solution: Tree Rotations (AVL Balancing):**\nLike a tightrope walker adjusting their balance bar, when one branch gets more than 1 level taller than its sibling ($|H_{\\text{left}} - H_{\\text{right}}| > 1$), we grab the middle node and **swing the tree** (left or right rotation). The tree snaps back into perfect balance in $O(1)$ time, guaranteeing search always takes $O(\\log N)$!\n\n### 2. The Invariants & Traversal Theorems\n- **The BST Invariant:**\n  $$\\forall x \\in \\text{Left}(u), \\; x < u \\quad \\land \\quad \\forall y \\in \\text{Right}(u), \\; y > u$$\n- **In-Order Traversal Theorem:** Visiting $\\text{Left} \\to \\text{Root} \\to \\text{Right}$ outputs all elements in **strictly ascending sorted order** ($O(N)$).\n- **Height-Balanced Depth:** An AVL tree guarantees maximum depth:\n  $$h < 1.44 \\log_2(N + 2) = O(\\log N)$$\n  In a tree of $1,000,000$ numbers, finding any value takes at most $\\approx 20$ comparisons!",
     "keyTakeaways": [
-      "BST Property: Left < Root < Right for every node in the tree.",
-      "In-Order Traversal: Visiting Left -> Root -> Right yields elements in strictly sorted ascending order.",
-      "Rotations: Left and Right rotations adjust tree balance without violating the BST ordering property.",
-      "Height Balance: Keeps max depth at ~1.44 log2(N) in AVL trees, avoiding worst-case O(N) degeneration."
+      "First Principles: BST turns the \"higher or lower\" 20-questions guessing game into a tree structure.",
+      "The BST Invariant: Left child < Current node < Right child everywhere in the tree.",
+      "In-Order Traversal: Visiting Left -> Root -> Right outputs elements in strictly sorted order.",
+      "Rotations: Local O(1) pointer swings restore O(log N) balanced height when subtrees become lopsided."
     ],
     "hotspots": [
       {
         "id": "root-node-15",
         "label": "Root Node (15)",
         "tag": "Tree Root",
-        "explanation": "All nodes in the left branch (7, 3, 11) are < 15; all in the right (24, 20, 28) are > 15."
+        "explanation": "All keys in the left branch (7, 3, 11) are smaller than 15; all in the right (24, 20, 28) are greater."
       },
       {
         "id": "avl-rotation",
-        "label": "AVL Rotations (Left & Right)",
+        "label": "AVL Tree Rotation (O(1))",
         "tag": "Balance Restoration",
-        "explanation": "Single and double rotations (LL, RR, LR, RL) rebalance subtrees when height factor difference |H_left - H_right| > 1."
+        "explanation": "Swinging child nodes upward rebalances tree height without violating the Left < Root < Right ordering."
       },
       {
         "id": "inorder-traversal",
-        "label": "In-Order Traversal",
+        "label": "In-Order Traversal (L -> Root -> R)",
         "tag": "Sorted Output",
-        "explanation": "Traversing Left -> Root -> Right produces: 3, 7, 11, 15, 20, 24, 28 (strictly sorted!)."
+        "explanation": "Visiting Left -> Root -> Right yields 3, 7, 11, 15, 20, 24, 28 (strictly sorted!)."
       }
     ],
     "visualCueCards": [
       {
-        "id": "bst-cue-1",
-        "title": "In-Order Gives Sorted Order",
-        "visualAnchor": "A walking beam traveling from lowest leaf to highest leaf",
-        "formulaOrFact": "In-Order: Left -> Node -> Right = Sorted Sequence",
-        "intuitionQuestion": "Why does in-order guarantee sorted values?",
-        "answer": "Because by definition, everything smaller (left) is printed before the node, and everything larger (right) is printed after."
+        "id": "cue-1",
+        "title": "In-Order Traversal yields Sorted Order",
+        "visualAnchor": "Sweeping a horizontal beam of light from left to right across hanging runes.",
+        "formulaOrFact": "\\text{In-Order: } \\text{Left} \\to \\text{Root} \\to \\text{Right} \\implies [k_1 \\le k_2 \\le \\dots \\le k_n]",
+        "intuitionQuestion": "Why does In-Order traversal always print elements in sorted order?",
+        "answer": "Because for every node, its smaller left children are printed before it, and its larger right children are printed after it, recursively maintaining ascending order across the entire tree."
       },
       {
-        "id": "bst-cue-2",
-        "title": "The Single Left Rotation",
-        "visualAnchor": "Branch bending like a wind turbine lifting the heavy child up",
-        "formulaOrFact": "Right-heavy unbalance (RR): Right child becomes new root, old root becomes its left child.",
-        "intuitionQuestion": "What happens to the inner subtree during rotation?",
-        "answer": "The new root's left child is reassigned to become the old root's right child, preserving BST invariants."
+        "id": "cue-2",
+        "title": "Balanced O(log N) vs Degenerate O(N)",
+        "visualAnchor": "A bushy symmetrical pine tree versus a tall bare pole with branches only on one side.",
+        "formulaOrFact": "h_{\\text{balanced}} \\approx \\log_2 N \\quad \\text{vs} \\quad h_{\\text{degenerate}} = N",
+        "intuitionQuestion": "In a balanced BST of 1,000,000 elements, how many node checks does it take to find a missing number?",
+        "answer": "Only about 20 checks (since 2^20 ≈ 1,048,576)! In an unbalanced stick, it could take up to 1,000,000 checks."
+      },
+      {
+        "id": "cue-3",
+        "title": "Single Left Rotation (O(1))",
+        "visualAnchor": "A child on a playground swing swinging upward to become the pivot while the parent swings down.",
+        "formulaOrFact": "P.\\text{right} = Q.\\text{left}; \\quad Q.\\text{left} = P;",
+        "intuitionQuestion": "Why do rotations never mess up the BST sorting order?",
+        "answer": "Because the middle subtree transferred during the rotation has values strictly between the two rotated nodes, naturally fitting into its new parent slot without breaking the Left < Root < Right invariant."
       }
     ],
     "activeRecallQuiz": [
       {
-        "question": "What is the worst-case search time in an UNBALANCED binary search tree with N elements inserted in strictly ascending order?",
+        "question": "What traversal order on a Binary Search Tree produces all stored values in ascending sorted numerical order?",
         "options": [
-          "O(N), because it degenerates into a single long linked-list chain.",
-          "O(log N), because binary search always divides in half.",
-          "O(1), because the element is at the root.",
-          "O(N log N), because of repeated comparisons."
+          "In-Order Traversal (Left, Root, Right)",
+          "Pre-Order Traversal (Root, Left, Right)",
+          "Post-Order Traversal (Left, Right, Root)",
+          "Level-Order Traversal (Breadth-First)"
         ],
         "correctIndex": 0,
-        "explanation": "Spot on! Inserting elements 1, 2, 3, 4, 5 in sorted order into an unbalanced tree creates a right-skewed single chain resembling a linked list, requiring O(N) traversals."
+        "explanation": "In-Order visits smaller elements in the left subtree first, then the root, then larger elements in the right subtree."
       }
-    ]
+    ],
+    "imagePrompt": "Technical infographic diagram of Binary Search Tree, AVL tree rotations, in-order traversal flow, balanced vs degenerate trees, anime aesthetics."
   },
   {
     "id": "os-concurrency-deadlock",
     "title": "Operating Systems: Concurrency, Mutex & Deadlock",
-    "subject": "Systems & Computer Architecture",
+    "subject": "Operating Systems & Concurrency",
     "style": "shinkai",
     "imageUrl": "/samples/deadlock_shinkai.jpg",
-    "metaphorTitle": "The Twilight Tramway Crossroads & The Circular Gridlock",
-    "metaphorStory": "Imagine a serene anime mountain train terminal at dusk with glowing celestial tracks. Two historic trams (Thread A and Thread B) need to traverse a single scenic bridge (the Critical Section). To prevent collisions, the station master holds a glowing brass key (the Mutex Lock). Only the tram holding the key can enter the bridge. But if four trams each enter a circular junction, each clutching one section of track while waiting for the next tram to move forward, a permanent twilight freeze occurs: Deadlock!",
-    "academicConcept": "Concurrency occurs when multiple instruction sequences execute simultaneously (or interleaved) sharing resources. A Critical Section is code accessing shared resources that must not be concurrently executed. A Mutex (Mutual Exclusion) lock guarantees that only one thread executes the critical section at a time. Deadlock occurs when a set of processes are permanently blocked because each holds a resource and waits for another resource held by another process.",
+    "metaphorTitle": "The Celestial Kitchen: Shared Pans and the Frozen Chef Standoff",
+    "metaphorStory": "In the high-speed royal kitchen of the anime realm, two brilliant master chefs prepare feasts simultaneously. But the kitchen has only one golden frying pan and one crystal knife. If Chef Ren grabs the pan while Chef Hina grabs the knife, and each waits stubbornly for the other to yield before cooking, neither chef ever moves a muscle. The kitchen freezes in eternal silence: the Dreaded Deadlock has fallen upon the realm.",
+    "academicConcept": "### 1. First-Principles Physical Intuition (ELI5)\nImagine two people sharing a single whiteboard. Both people try to write on the exact same spot at the exact same second:\n- Person A writes \"CAT\"\n- Person B writes \"DOG\"\nThe board becomes messy scribbles: \"CDAOTG\". This is a **Race Condition**!\n\nTo prevent this chaos, computers use a **Mutex (Mutual Exclusion)**:\nThink of a single bathroom key hanging on a hook.\n- Before writing on the board, you take the key.\n- While you hold the key, nobody else can enter.\n- When done, you return the key.\n\n**Now, what is a Deadlock? (The Mexican Standoff)**\nDeadlock happens when processes freeze forever waiting on each other!\nImagine:\n1. Chef Ren holds the **Pan** and needs the **Knife** to finish cooking.\n2. Chef Hina holds the **Knife** and needs the **Pan** to finish cooking.\n3. Neither chef will let go of what they hold until they get the other tool.\n**Result:** Both chefs freeze forever staring at each other! That is Deadlock.\n\n### 2. The 4 Coffman Conditions (The Deadlock Recipe)\nA deadlock can happen IF AND ONLY IF all 4 of these conditions occur simultaneously:\n1. **Mutual Exclusion:** Resources cannot be shared (only 1 person holds the key at a time).\n2. **Hold and Wait:** A process holds one resource while waiting to get another.\n3. **No Preemption:** Resources cannot be forcibly ripped away from a process.\n4. **Circular Wait:** Process A waits for B, and B waits for A ($P_0 \\to P_1 \\to \\dots \\to P_0$).\n\n**How to eliminate deadlocks forever?**\nBreak any **ONE** condition! The easiest engineering solution is **Strict Lock Ordering**: always acquire Resource 1 before Resource 2. If both chefs are required by law to grab the Pan *before* grabbing the Knife, circular waiting is physically impossible!",
     "keyTakeaways": [
-      "The 4 Coffman Conditions for Deadlock: Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait.",
-      "Deadlock Prevention: Eliminating ANY ONE of the four Coffman conditions guarantees deadlock cannot occur.",
-      "Resource Allocation Graph (RAG): A cycle in a RAG with single-unit resources is both necessary and sufficient for deadlock.",
-      "Banker's Algorithm: A deadlock avoidance algorithm that checks for a 'safe state' before allocating resources."
+      "The Shared Board Intuition: Race conditions happen when multiple threads write to shared memory at once without coordination.",
+      "Mutex as a Bathroom Key: Guarantees mutual exclusion so only one thread executes inside the critical section at a time.",
+      "Deadlock Standoff: Occurs when processes hold resources while waiting on each other in a circle.",
+      "The Coffman Rule: Deadlock requires 4 conditions. Breaking just ONE (e.g. strict lock ordering) makes deadlock mathematically impossible."
     ],
     "hotspots": [
       {
-        "id": "critical-section-tram",
-        "label": "Critical Section Bridge",
-        "tag": "Shared Resource",
-        "explanation": "Single track where only one tram (thread) is allowed at any moment to prevent race conditions."
+        "id": "mutex-lock",
+        "label": "Mutex Lock (The Bathroom Key)",
+        "tag": "Mutual Exclusion",
+        "explanation": "Only the thread holding the lock can enter the critical section to access shared memory."
       },
       {
-        "id": "mutex-lock-key",
-        "label": "Mutex Lock Key",
-        "tag": "Synchronization Primitive",
-        "explanation": "Acquired before entering the critical section; released immediately upon exit."
+        "id": "race-condition",
+        "label": "Race Condition (Shared Memory Clash)",
+        "tag": "Critical Section",
+        "explanation": "Two threads simultaneously updating counter x++ without a lock overwrite each other’s increments."
       },
       {
-        "id": "coffman-conditions",
-        "label": "4 Coffman Conditions",
-        "tag": "Deadlock Prerequisites",
-        "explanation": "1. Mutual Exclusion, 2. Hold and Wait, 3. No Preemption, 4. Circular Wait."
-      },
-      {
-        "id": "circular-wait-tram",
-        "label": "Circular Wait Loop",
-        "tag": "Deadlock Cycle",
-        "explanation": "Tram 1 holds Track A waiting for Track B; Tram 2 holds Track B waiting for Track A. Circular deadlock!"
+        "id": "circular-wait",
+        "label": "Circular Wait Cycle (Deadlock)",
+        "tag": "Deadlock Condition",
+        "explanation": "Process A holds Resource 1 and waits for 2; Process B holds 2 and waits for 1, freezing execution forever."
       }
     ],
     "visualCueCards": [
       {
-        "id": "os-cue-1",
-        "title": "Break Circular Wait to Prevent Deadlock",
-        "visualAnchor": "Numbering all train tracks with glowing hieroglyphs",
-        "formulaOrFact": "Resource Ordering: Always request locks in strictly increasing numerical order.",
-        "intuitionQuestion": "Why does strict lock ordering prevent circular wait?",
-        "answer": "Because a cycle requires at least one thread to hold a higher lock while requesting a lower lock, which the protocol forbids."
+        "id": "cue-1",
+        "title": "Why x++ is Not Thread-Safe",
+        "visualAnchor": "Two people trying to set a digital clock at the same instant.",
+        "formulaOrFact": "x++ \\implies \\text{Read}(x) \\to \\text{Add}(1) \\to \\text{Write}(x)",
+        "intuitionQuestion": "Why can two threads running x++ 100 times each result in x being less than 200?",
+        "answer": "Because x++ takes three physical CPU steps! If Thread A reads 5, and Thread B reads 5 before Thread A writes 6, both write 6 back, silently erasing one of the increments."
       },
       {
-        "id": "os-cue-2",
-        "title": "Race Condition Mnemonic",
-        "visualAnchor": "Two conductor stamps hitting the same ticket at once causing ink smear",
-        "formulaOrFact": "Outcome depends on uncontrollable thread scheduling order.",
-        "intuitionQuestion": "How do atomic operations solve race conditions?",
-        "answer": "They execute as an indivisible hardware instruction that cannot be interrupted by another thread."
+        "id": "cue-2",
+        "title": "The 4 Coffman Conditions",
+        "visualAnchor": "A four-tumbler padlock that only opens when all four tumblers align.",
+        "formulaOrFact": "\\text{Deadlock} \\iff \\text{Mutex} \\land \\text{Hold\\&Wait} \\land \\text{No Preempt} \\land \\text{Circular Wait}",
+        "intuitionQuestion": "How does assigning a global numeric order to all locks (Lock 1 < Lock 2) prevent deadlocks?",
+        "answer": "It eliminates Circular Wait! If every thread must acquire Lock 1 before Lock 2, it is mathematically impossible to form a cycle of dependency."
+      },
+      {
+        "id": "cue-3",
+        "title": "Mutex vs Counting Semaphore",
+        "visualAnchor": "A single private bathroom key versus a parking garage with 10 vacant bays.",
+        "formulaOrFact": "\\text{Mutex: } \\{0, 1\\} \\quad \\text{vs} \\quad \\text{Semaphore: } N \\ge 0",
+        "intuitionQuestion": "What is the physical difference between a Mutex and a Semaphore?",
+        "answer": "A Mutex is a key with an owner (only the thread that locked it can unlock it). A Semaphore is a pool of N tokens (any thread can take or release a token, perfect for rate limiting or signalling)."
       }
     ],
     "activeRecallQuiz": [
       {
-        "question": "Which of the following strategies successfully prevents deadlock by breaking the 'Hold and Wait' condition?",
+        "question": "Which of the following interventions is guaranteed to prevent deadlocks from ever occurring across multiple threads?",
         "options": [
-          "Require processes to request and receive all needed resources at once before execution begins.",
-          "Allow the operating system to forcefully take resources away from running processes.",
-          "Impose a strict linear ordering on all resource acquisition.",
-          "Replace all mutual exclusion locks with spinlocks."
+          "Enforcing a strict global ordering on lock acquisition (e.g., always acquire Lock A before Lock B)",
+          "Increasing the clock speed of the CPU processor",
+          "Replacing all Mutexes with Spinlocks",
+          "Allowing threads to hold unlimited locks without checks"
         ],
         "correctIndex": 0,
-        "explanation": "Correct! If a process must allocate all resources simultaneously before starting, it never 'holds' some resources while 'waiting' for others."
+        "explanation": "Strict global lock ordering breaks the Circular Wait condition, making deadlock cycles mathematically impossible."
       }
-    ]
+    ],
+    "imagePrompt": "Technical OS infographic diagram illustrating concurrency race conditions, mutex mutual exclusion, deadlock Coffman conditions circular wait graph, anime aesthetic."
   },
   {
     "id": "neural-network-backpropagation",
     "title": "Neural Networks, Forward & Backpropagation",
-    "subject": "Machine Learning & Artificial Intelligence",
+    "subject": "Machine Learning & Deep Learning",
     "style": "shinkai",
     "imageUrl": "/samples/neural_shinkai.jpg",
-    "metaphorTitle": "The Celestial Observatory of Starlight Gradients",
-    "metaphorStory": "Imagine an anime astronomy student standing atop an ancient hillside observatory at sunset. Starlight from distant constellations filters through luminous glass lens layers (Input, Hidden, and Output). At first, the projected star coordinates on her chart are blurry and misaligned (High Initial Loss). By looking backwards through the lens array, she measures the gradient of the blur (Chain Rule Error Derivative) and gently turns the brass dial rings (Weights) step-by-step down the mountain slope until the image snaps into crystalline focus at the Global Minimum.",
-    "academicConcept": "An Artificial Neural Network computes a prediction through Forward Propagation: linear combinations z = Wx + b passed through non-linear activation functions h = f(z). The Loss Function L(y_hat, y) measures prediction error. Backpropagation uses the Calculus Chain Rule to compute the partial derivative of the loss with respect to each weight (∂L/∂W), and Gradient Descent updates weights in the opposite direction: W := W - η ∇L.",
+    "metaphorTitle": "The Choir of Resonant Tuning: Harmony Through Blame-Sharing",
+    "metaphorStory": "Imagine an ethereal anime choir singing before the Oracle. Each singer listens to the notes from the row behind them, adjusts their pitch using a delicate personal tuning dial (Weight), and sings forward into the sanctuary. At first, the song is a discordant clash. The Oracle reveals the true holy melody. Instantly, a golden wave of acoustic resonance flows in reverse: each singer discovers exactly how much their dial threw off the chord, and nudges their tuning dial toward harmony.",
+    "academicConcept": "### 1. First-Principles Physical Intuition (ELI5)\nImagine a team of detectives guessing whether an animal in a blurry photo is a **Cat** or a **Dog**.\n\n**Step 1: Forward Propagation (Passing Clues Forward):**\n- Detective 1 looks for whiskers.\n- Detective 2 looks for pointy ears.\nEach detective has a **Volume Knob (a Weight $W$)** for how much they trust that clue.\nThey add up all the weighted clues, add a baseline suspicion (**Bias $b$**), and pass the score through a trigger switch (**Activation function**, e.g., ReLU or Sigmoid: *\"Only shout if suspicion is above 50%\"*).\nAt the end, the team makes a guess: *\"We are 80% sure it's a Dog!\"*\n\n**Step 2: The Loss (Measuring the Mistake):**\nThe judge opens the envelope: *\"Wrong! It was a Cat! Your mistake (Loss) is 0.8.\"*\n\n**Step 3: Backpropagation (The Blame Game):**\nHow does the team get smarter?\nWe trace backwards from the final mistake using calculus (**The Chain Rule**).\nWe ask each detective: *\"How much did YOUR volume knob contribute to the error?\"*\nDetectives whose knobs caused the big mistake receive the most blame!\n\n**Step 4: Gradient Descent (Nudging the Knobs):**\nEvery detective gently turns their volume knob in the direction that lowers the mistake:\n$$W_{\\text{new}} = W - \\alpha \\frac{\\partial \\text{Loss}}{\\partial W}$$\nRepeat this with millions of photos, and the network becomes a master recognizer!\n\n### 2. The Core Mathematical Equations\n- **Single Neuron Activation:**\n  $$z = \\sum_{i} w_i x_i + b, \\quad a = \\sigma(z)$$\n- **The Chain Rule for Backpropagation:**\n  $$\\frac{\\partial \\mathcal{L}}{\\partial w_{ij}} = \\frac{\\partial \\mathcal{L}}{\\partial a_j} \\cdot \\frac{\\partial a_j}{\\partial z_j} \\cdot \\frac{\\partial z_j}{\\partial w_{ij}}$$\n  The gradient of the loss with respect to any early weight is just the product of local derivatives along the pathway backward!\n- **Weight Update (Gradient Descent):**\n  $$w \\leftarrow w - \\eta \\, \\nabla_w \\mathcal{L}$$\n  Where $\\eta$ is the learning rate (step size down the error hill).",
     "keyTakeaways": [
-      "Forward Pass: Computes activations layer-by-layer from input to output.",
-      "Loss Calculation: Quantifies divergence between prediction and ground-truth target.",
-      "Backward Pass (Chain Rule): Propagates error backwards, calculating ∂L/∂w_ij.",
-      "Learning Rate (η): Controls the step size down the gradient slope. Too large causes divergence; too small causes slow convergence."
+      "The Detective Team: Neurons are detectives with volume knobs (weights). Clues flow forward to make a prediction.",
+      "Activation Function: Decides whether a neuron fires, introducing non-linearity so the network can learn complex curves.",
+      "Backpropagation: Using the calculus Chain Rule in reverse to measure how much each weight knob contributed to the mistake.",
+      "Gradient Descent: Nudging every weight knob down the slope of the error hill to minimize loss."
     ],
     "hotspots": [
       {
-        "id": "input-layer",
-        "label": "Input Layer (Features)",
-        "tag": "Raw Starlight Data",
-        "explanation": "Nodes representing raw feature vectors fed into the network."
+        "id": "forward-pass",
+        "label": "Forward Propagation (z = Wx + b)",
+        "tag": "Inference",
+        "explanation": "Inputs are multiplied by weights, summed with bias, and transformed through non-linear activation."
       },
       {
-        "id": "hidden-layers",
-        "label": "Hidden Layers (Representations)",
-        "tag": "Feature Abstractions",
-        "explanation": "Neurons apply activation functions (e.g. ReLU, GELU) to model non-linear boundaries."
+        "id": "loss-function",
+        "label": "Loss Computation (Error Measurement)",
+        "tag": "Objective",
+        "explanation": "Calculates the mathematical distance between network prediction and true ground truth label."
       },
       {
-        "id": "backpropagation-arrows",
-        "label": "Backpropagation (Chain Rule)",
-        "tag": "Error Correction",
-        "explanation": "Errors flow in reverse: ∂L/∂W = (∂L/∂y) * (∂y/∂h) * (∂h/∂z) * (∂z/∂W)."
-      },
-      {
-        "id": "loss-descent-curve",
-        "label": "Loss Curve & Gradient Descent",
+        "id": "backprop-chain-rule",
+        "label": "Backpropagation Gradient Flow",
         "tag": "Optimization",
-        "explanation": "Loss decreases over iterations towards a local or global minimum via W := W - η ∇Loss."
+        "explanation": "Chain rule propagates error gradients backward through layers to calculate partial derivatives."
       }
     ],
     "visualCueCards": [
       {
-        "id": "nn-cue-1",
-        "title": "The Weight Update Rule",
-        "visualAnchor": "Stepping down a glowing dusk hillside toward the valley",
-        "formulaOrFact": "W := W - η · ∇_W(Loss)",
-        "intuitionQuestion": "Why the minus sign in the update rule?",
-        "answer": "Because the gradient points in the direction of steepest INCREASE; we subtract it to descend toward the minimum."
+        "id": "cue-1",
+        "title": "The Single Neuron Activation",
+        "visualAnchor": "A water funnel collecting streams from different pipes with adjustable valve taps.",
+        "formulaOrFact": "a = \\sigma\\left(\\sum w_i x_i + b\\right)",
+        "intuitionQuestion": "What physical role does the bias term b play in a neuron?",
+        "answer": "The bias sets the activation threshold! Without a bias, the neuron decision boundary is stuck passing through (0,0). The bias allows the neuron to shift its threshold up or down freely."
       },
       {
-        "id": "nn-cue-2",
-        "title": "Why Non-Linear Activations Matter",
-        "visualAnchor": "A curved prism bending linear light into complex spectra",
-        "formulaOrFact": "Without activations: W2 * (W1 * x) = (W2 * W1) * x = W_combined * x",
-        "intuitionQuestion": "What happens if all activation functions are linear f(x) = x?",
-        "answer": "No matter how many layers the network has, it collapses into a single-layer linear model unable to learn non-linear patterns."
+        "id": "cue-2",
+        "title": "Backpropagation via the Chain Rule",
+        "visualAnchor": "A line of dominos falling in reverse to trace which domino started the vibration.",
+        "formulaOrFact": "\\frac{\\partial \\mathcal{L}}{\\partial w} = \\frac{\\partial \\mathcal{L}}{\\partial \\text{out}} \\cdot \\frac{\\partial \\text{out}}{\\partial \\text{net}} \\cdot \\frac{\\partial \\text{net}}{\\partial w}",
+        "intuitionQuestion": "Why is it called \"Backpropagation\"?",
+        "answer": "Because error signals propagate backwards through the network—from output loss to input layer—reusing calculated partial derivatives at each layer to compute exact weight updates."
+      },
+      {
+        "id": "cue-3",
+        "title": "Learning Rate Step Size",
+        "visualAnchor": "A hiker navigating down a fog-covered mountain slope toward the valley basin.",
+        "formulaOrFact": "W \\leftarrow W - \\eta \\, \\nabla_W \\mathcal{L}",
+        "intuitionQuestion": "What happens physically if the learning rate η is set too high?",
+        "answer": "Like a hiker taking 100-foot leaps, updates will overshoot the bottom of the error valley, bounce wildly off canyon walls, and diverge instead of converging."
       }
     ],
     "activeRecallQuiz": [
       {
-        "question": "In backpropagation, which mathematical principle is applied to compute the gradient across multiple connected layers?",
+        "question": "What mathematical principle enables backpropagation to calculate error gradients layer-by-layer moving backward from the loss?",
         "options": [
           "The Chain Rule of Calculus",
-          "L'Hôpital's Rule",
-          "Bayes' Theorem",
-          "The Law of Large Numbers"
+          "Bayes’ Theorem of Conditional Probability",
+          "Newton’s Law of Universal Gravitation",
+          "The Fourier Transform"
         ],
         "correctIndex": 0,
-        "explanation": "Exactly! The Chain Rule allows us to decompose the composite derivative ∂Loss/∂W through intermediate activations and layer pre-activations."
+        "explanation": "The Chain Rule states that the derivative of composite functions is the product of their individual derivatives, allowing layer-by-layer gradient calculation."
       }
-    ]
+    ],
+    "imagePrompt": "Technical infographic diagram of artificial neural network forward pass, backpropagation chain rule gradient flow, gradient descent loss landscape, anime visual style."
   }
 ]

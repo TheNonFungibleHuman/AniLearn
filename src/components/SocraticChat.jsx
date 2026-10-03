@@ -10,7 +10,7 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Konnichiwa! I'm your study partner **SenpaiAI**. We're exploring **${topic?.title || 'this topic'}**.\n\nTake a look at the infographic on the right: notice how the abstract mechanics are anchored visually. What part of the diagram or concept feels tricky? Let's unpack it together.`
+      content: `Konnichiwa! I'm your study partner **SenpaiAI**. We're exploring **${topic?.title || 'this topic'}**.\n\nI follow Richard Feynman's golden rule: if we can't explain something simply from first principles so a 5-year-old can grasp it, we don't truly understand it yet!\n\nTake a look at the infographic on the right. Want me to break down the physical cause-and-effect with everyday analogies, walk through a formula, or test your gut intuition?`
     }
   ]);
   const [input, setInput] = useState('');
@@ -21,7 +21,7 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
     setMessages([
       {
         role: 'assistant',
-        content: `Konnichiwa! I'm your study partner **SenpaiAI**. We're exploring **${topic?.title || 'this topic'}**!\n\nTake a look at the diagram on the right. What part would you like me to clarify with an anime mental model?`
+        content: `Konnichiwa! I'm your study partner **SenpaiAI**. We're exploring **${topic?.title || 'this topic'}**!\n\nI follow the Feynman technique: we break down every complex concept into simple, tangible first principles (ELI5). What part would you like to unpack first?`
       }
     ]);
   }, [topic?.id]);
@@ -38,10 +38,10 @@ export default function SocraticChat({ topic, thinkingLevel, setThinkingLevel, c
   }, [messages, isLoading]);
 
   const quickPrompts = [
-    `Why is this concept crucial in exams?`,
-    `Explain the visual cues in the diagram`,
-    `Give me a counter-example or edge case`,
-    `Quiz my intuition with a tricky scenario`
+    `ELI5: Explain this to a 5-year-old from first principles`,
+    `Explain the physical analogies in the diagram`,
+    `Break down the core formula in plain English`,
+    `Quiz my gut intuition with a physical scenario`
   ];
 
   const sendMessage = async (textToSend) => {

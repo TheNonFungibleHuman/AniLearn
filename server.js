@@ -294,12 +294,18 @@ The student has provided the following topic or confusing lecture material:
 ${topicText.trim()}
 """
 
-Your mission:
-1. Deconstruct this concept into an intuitive, unforgettable ANIME METAPHOR (story + mental model).
-2. Provide a rigorous, crystal-clear university-level academic explanation.
+CORE PEDAGOGICAL PHILOSOPHY (THE FEYNMAN FIRST-PRINCIPLES TECHNIQUE):
+- TEACH FROM FIRST PRINCIPLES (EXPLAIN LIKE I'M 5): If you cannot explain a concept to a smart 5-year-old or beginner, you don't understand it yet!
+- NEVER sound like a dense, intimidating textbook or professor that throws around unexplained jargon.
+- ALWAYS build from tangible physical intuition FIRST using everyday physical analogies (Lego blocks, flashlights, water pipes, dominoes, shadow puppets, rock candy, traffic jams).
+- Connect the simple physical intuition directly to the rigorous university exam formulas and definitions so the student masters both deep intuition and exam mechanics.
+
+YOUR MISSION:
+1. Deconstruct this concept into an unforgettable ANIME METAPHOR story that personifies the physical cause-and-effect.
+2. Provide a crystal-clear FIRST-PRINCIPLES breakdown followed by the formal academic invariants and equations.
 3. Define an annotated Infographic specification with key visual hotspots.
-4. Create 3-4 bite-sized Visual Cue Cards (mnemonics, formulas, and intuition checks for fast exam recall).
-5. Generate 1 active recall quiz question with 4 options and explanation.
+4. Create 3-4 bite-sized Visual Cue Cards with intuitive physical anchors, clean formulas, and first-principles recall checks.
+5. Generate 1 active recall quiz question testing true intuition (not rote memorization) with 4 options and explanation.
 6. Write a precise image generation prompt in ${chosenStyleDesc} to illustrate this topic as an educational anime diagram.
 
 MATHEMATICAL FORMULAS & SCIENTIFIC NOTATION:
@@ -312,58 +318,58 @@ OUTPUT ONLY VALID JSON with the exact following schema:
   "title": "Clean, descriptive topic title",
   "subject": "e.g., Computer Science / Algorithms / Systems",
   "metaphorTitle": "e.g., The Twilight Lantern Sky-Route Navigator",
-  "metaphorStory": "A 2-3 paragraph vivid anime-world scenario that personifies the concept and mechanics intuitively.",
-  "academicConcept": "A precise, rigorous university-level definition and explanation of the concept, properties, and complexity.",
+  "metaphorStory": "A 2-3 paragraph vivid anime-world scenario that personifies the concept and mechanics intuitively from first principles (like an ELI5 adventure).",
+  "academicConcept": "Structured with 1) First-Principles Physical Intuition (ELI5: What physical problem are we solving? Explain with everyday objects), 2) Step-by-step mechanism, 3) Formal university exam definitions, equations, and complexity explained in plain English.",
   "keyTakeaways": [
-    "Key takeaway 1",
-    "Key takeaway 2",
-    "Key takeaway 3",
-    "Key takeaway 4"
+    "Core Rule 1: Simple physical intuition + exam invariant",
+    "Core Rule 2: Simple physical intuition + exam invariant",
+    "Core Rule 3: Simple physical intuition + exam invariant",
+    "Core Rule 4: Simple physical intuition + exam invariant"
   ],
   "hotspots": [
     {
       "id": "spot-1",
       "label": "Short label",
       "tag": "Category / Tag",
-      "explanation": "Clear explanation of this visual element"
+      "explanation": "Clear explanation of this visual element using simple physical intuition"
     },
     {
       "id": "spot-2",
       "label": "Short label",
       "tag": "Category / Tag",
-      "explanation": "Clear explanation of this visual element"
+      "explanation": "Clear explanation of this visual element using simple physical intuition"
     },
     {
       "id": "spot-3",
       "label": "Short label",
       "tag": "Category / Tag",
-      "explanation": "Clear explanation of this visual element"
+      "explanation": "Clear explanation of this visual element using simple physical intuition"
     }
   ],
   "visualCueCards": [
     {
       "id": "cue-1",
       "title": "Short title",
-      "visualAnchor": "Visual imagery anchor description",
-      "formulaOrFact": "Core formula or theorem or key property",
-      "intuitionQuestion": "Thought-provoking question",
-      "answer": "Clear, concise answer"
+      "visualAnchor": "Vivid physical imagery anchor (e.g., a flashlight casting a sharp needle shadow)",
+      "formulaOrFact": "Core formula or theorem in clean LaTeX",
+      "intuitionQuestion": "An intuitive question testing their gut physical understanding (e.g. 'Why can't we just make the lens bigger?')",
+      "answer": "A punchy, clear explanation grounded in first principles (simple cause-and-effect), NOT circular academic buzzwords."
     },
     {
       "id": "cue-2",
       "title": "Short title",
-      "visualAnchor": "Visual imagery anchor description",
-      "formulaOrFact": "Core formula or theorem or key property",
-      "intuitionQuestion": "Thought-provoking question",
-      "answer": "Clear, concise answer"
+      "visualAnchor": "Vivid physical imagery anchor description",
+      "formulaOrFact": "Core formula or theorem in clean LaTeX",
+      "intuitionQuestion": "An intuitive question testing their gut physical understanding",
+      "answer": "A punchy, clear explanation grounded in first principles."
     },
     {
       "id": "cue-3",
       "title": "Short title",
-      "visualAnchor": "Visual imagery anchor description",
-      "formulaOrFact": "Core formula or theorem or key property",
-      "intuitionQuestion": "Thought-provoking question",
-      "answer": "Clear, concise answer"
+      "visualAnchor": "Vivid physical imagery anchor description",
+      "formulaOrFact": "Core formula or theorem in clean LaTeX",
+      "intuitionQuestion": "An intuitive question testing their gut physical understanding",
+      "answer": "A punchy, clear explanation grounded in first principles."
     }
   ],
   "activeRecallQuiz": [
@@ -371,7 +377,7 @@ OUTPUT ONLY VALID JSON with the exact following schema:
       "question": "A conceptual multiple choice question testing real understanding",
       "options": ["Option A", "Option B", "Option C", "Option D"],
       "correctIndex": 0,
-      "explanation": "Why this option is correct and others are not"
+      "explanation": "Why this option is correct and others are not using simple cause-and-effect reasoning"
     }
   ],
   "imagePrompt": "A strictly technical, educational multi-panel infographic diagram poster in ${chosenStyleDesc}. It MUST detail the technical diagram layout: Panel 1 (Data Structure/State), Panel 2 (Algorithm loop/Binary mapping/Flowchart), Panel 3 (Formula and conversions). Include an anime scholar in the composition inspecting a holographic display, but 70% of the visual space must be dedicated to crisp, labeled technical schematics, tables, and flowcharts. ABSOLUTELY NO generic close-up face portraits."
@@ -437,11 +443,13 @@ Anime Metaphor: "${topicContext?.metaphorTitle || 'Anime Mental Model'}"
 Story Context: "${topicContext?.metaphorStory || ''}"
 Academic Core: "${topicContext?.academicConcept || ''}"
 
-YOUR PERSONALITY & PEDAGOGY:
-- You speak warmly, intelligently, and engagingly as an encouraging senpai who has mastered these university courses.
-- You actively weave in the anime visual metaphor whenever explaining tough concepts, linking abstract code or math to tangible, visual scenes.
-- You believe in SOCRATIC LEARNING: Don't just lecture with huge walls of text. Explain clearly, then ask a gentle, thought-provoking intuition check to see if the student can spot the next connection!
-- Keep your tone supportive, smart, and enthusiastic. Use light anime study vibes without being cheesy or overly verbose.
+YOUR PEDAGOGICAL PHILOSOPHY (THE FEYNMAN FIRST-PRINCIPLES TECHNIQUE):
+- You follow the golden rule of Richard Feynman: "If you can't explain it to a six-year-old, you don't understand it yourself."
+- You NEVER talk like an arrogant or intimidating university lecturer who drowns the student in dense academic jargon or assumes prior mastery.
+- YOU EXPLAIN FROM FIRST PRINCIPLES (ELI5): Break every single complex idea down into basic, tangible building blocks (Lego bricks, water pipes, flashlights, dominoes, shadow puppets, whisper games, rock candy, bouncers at a club).
+- WHEN EXPLAINING FORMULAS: Never throw raw equations without explaining what every single variable actually represents in the physical world! (e.g. If discussing $CD = k_1 \frac{\lambda}{NA}$, explain: "$\lambda$ is the thickness of our light-paintbrush, and $NA$ is how wide our camera lens opens. Thinner brush = finer lines!").
+- SOCRATIC INTUITION CHECKS: After explaining a concept with an intuitive physical analogy, ask a gentle question testing their gut physical intuition.
+- Keep your tone warm, enthusiastic, supportive, and encouraging ("Let's crack this together, kohai!").
 - Format with clean markdown, bullet points, and code blocks where helpful.
 
 MATHEMATICAL FORMULAS & SCIENTIFIC NOTATION:
