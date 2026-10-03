@@ -24,20 +24,28 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ensure data and public directories exist
+// Ensure data and public directories exist (safe for serverless)
 const dataDir = path.join(__dirname, 'data');
 const generatedDir = path.join(__dirname, 'public', 'generated');
 const samplesDir = path.join(__dirname, 'public', 'samples');
 
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-if (!fs.existsSync(generatedDir)) fs.mkdirSync(generatedDir, { recursive: true });
-if (!fs.existsSync(samplesDir)) fs.mkdirSync(samplesDir, { recursive: true });
+try {
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  if (!fs.existsSync(generatedDir)) fs.mkdirSync(generatedDir, { recursive: true });
+  if (!fs.existsSync(samplesDir)) fs.mkdirSync(samplesDir, { recursive: true });
+} catch (e) {
+  // Read-only filesystem in serverless environments
+}
 
 const initialTopicsFile = path.join(dataDir, 'initial_topics.json');
 const savedTopicsFile = path.join(dataDir, 'saved_topics.json');
 
+// In-memory cache for serverless environments
+let inMemoryTopics = [];
+
 // Helper to get all topics
 function getAllTopics() {
+  if (inMemoryTopics.length > 0) return inMemoryTopics;
   let initial = [];
   let saved = [];
   if (fs.existsSync(initialTopicsFile)) {
@@ -54,26 +62,25 @@ function getAllTopics() {
       console.error('Error reading saved_topics.json:', e);
     }
   }
-  return [...saved, ...initial];
+  inMemoryTopics = [...saved, ...initial];
+  return inMemoryTopics;
 }
 
 function saveTopic(topic) {
-  let saved = [];
-  if (fs.existsSync(savedTopicsFile)) {
-    try {
-      saved = JSON.parse(fs.readFileSync(savedTopicsFile, 'utf-8'));
-    } catch (e) {
-      saved = [];
-    }
-  }
-  // Replace if exists, or prepend
-  const idx = saved.findIndex(t => t.id === topic.id);
+  const current = getAllTopics();
+  const idx = current.findIndex(t => t.id === topic.id);
   if (idx >= 0) {
-    saved[idx] = topic;
+    current[idx] = topic;
   } else {
-    saved.unshift(topic);
+    current.unshift(topic);
   }
-  fs.writeFileSync(savedTopicsFile, JSON.stringify(saved, null, 2));
+  inMemoryTopics = current;
+
+  try {
+    fs.writeFileSync(savedTopicsFile, JSON.stringify(current, null, 2));
+  } catch (e) {
+    console.log('Saved topic to in-memory state (serverless read-only filesystem)');
+  }
 }
 
 // Helper to call Google Gemini with resilient model cascade
@@ -190,10 +197,16 @@ async function generateAnimeImage(prompt, topicId, style = 'cyberpunk', customKe
         const parts = data.candidates?.[0]?.content?.parts || [];
         for (const p of parts) {
           if (p.inlineData && p.inlineData.data) {
-            const buffer = Buffer.from(p.inlineData.data, 'base64');
-            fs.writeFileSync(filePath, buffer);
-            console.log(`Generated infographic via Google ${model}: ${publicUrl}`);
-            return publicUrl;
+            const dataUrl = `data:image/jpeg;base64,${p.inlineData.data}`;
+            try {
+              const buffer = Buffer.from(p.inlineData.data, 'base64');
+              fs.writeFileSync(filePath, buffer);
+              console.log(`Generated infographic via Google ${model}: ${publicUrl}`);
+              return publicUrl;
+            } catch {
+              console.log(`Generated infographic via Google ${model} (serving via Data URL for serverless)`);
+              return dataUrl;
+            }
           }
         }
       } else {
@@ -439,7 +452,11 @@ YOUR PERSONALITY & PEDAGOGY:
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`AniLearn Backend Server running on http://localhost:${PORT}`);
-  console.log(`Using Gemini 3.8 Flash & Nano Banana integration.`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`AniLearn Backend Server running on http://localhost:${PORT}`);
+    console.log(`Using Gemini 3.8 Flash & Nano Banana integration.`);
+  });
+}
+
+export default app;
