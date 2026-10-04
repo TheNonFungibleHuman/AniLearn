@@ -5,6 +5,12 @@ export default function VisualCanvas({ topic, onAskSenpai }) {
   const [zoom, setZoom] = useState(1);
   const [selectedHotspot, setSelectedHotspot] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [imgSrc, setImgSrc] = useState(topic?.imageUrl);
+
+  React.useEffect(() => {
+    setImgSrc(topic?.imageUrl);
+    setSelectedHotspot(null);
+  }, [topic?.id, topic?.imageUrl]);
 
   const handleZoomIn = () => setZoom((prev) => Math.min(prev + 0.25, 2.5));
   const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.25, 0.75));
@@ -59,7 +65,7 @@ export default function VisualCanvas({ topic, onAskSenpai }) {
               <Maximize2 className="w-3.5 h-3.5" />
             </button>
             <a
-              href={topic.imageUrl}
+              href={imgSrc || topic.imageUrl}
               download={`${topic.id}_diagram.jpg`}
               target="_blank"
               rel="noreferrer"
@@ -74,14 +80,42 @@ export default function VisualCanvas({ topic, onAskSenpai }) {
         {/* Viewport & Image */}
         <div className="relative min-h-[250px] sm:min-h-[360px] max-h-[500px] bg-black flex items-center justify-center overflow-auto p-2 sm:p-3">
           <div
-            className="transition-transform duration-150 ease-out origin-center flex items-center justify-center max-w-full"
+            className="relative transition-transform duration-150 ease-out origin-center flex items-center justify-center max-w-full"
             style={{ transform: `scale(${zoom})` }}
           >
             <img
-              src={topic.imageUrl}
+              src={imgSrc || topic.imageUrl}
               alt={topic.title}
+              onError={() => {
+                console.warn('Image failed to load, falling back to curated visual.');
+                setImgSrc('/samples/bst_shinkai.jpg');
+              }}
               className="rounded-lg object-contain max-h-[460px] w-auto border border-white/[0.04] shadow-lg"
             />
+
+            {/* Overlaid Hotspot Pins if coordinates exist */}
+            {topic.hotspots && topic.hotspots.map((spot, idx) => {
+              if (typeof spot.x !== 'number' || typeof spot.y !== 'number') return null;
+              const isSelected = selectedHotspot?.id === spot.id;
+              return (
+                <button
+                  key={spot.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedHotspot(isSelected ? null : spot);
+                  }}
+                  style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+                  title={spot.label}
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold font-mono transition-transform cursor-pointer z-10 ${
+                    isSelected
+                      ? 'bg-white text-black scale-125 ring-2 ring-white shadow-lg shadow-white/50'
+                      : 'bg-black/80 text-white border border-white/60 hover:scale-110 hover:bg-white hover:text-black shadow-md'
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

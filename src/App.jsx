@@ -18,28 +18,24 @@ export default function App() {
   const [customPrompt, setCustomPrompt] = useState('');
   const [isIngestOpen, setIsIngestOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const fetchTopics = async () => {
+  const fetchTopics = React.useCallback(async () => {
     try {
       const res = await fetch('/api/topics');
       if (res.ok) {
         const data = await res.json();
         setTopics(data);
-        if (data.length > 0 && !currentTopicId) {
-          setCurrentTopicId(data[0].id);
+        if (data.length > 0) {
+          setCurrentTopicId((prev) => prev || data[0].id);
         }
       }
     } catch (err) {
       console.error('Failed to load topics:', err);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTopics();
-  }, []);
+  }, [fetchTopics]);
 
   const currentTopic = topics.find((t) => t.id === currentTopicId) || topics[0];
 
@@ -113,19 +109,20 @@ export default function App() {
           {mobileTab === 'visuals' && (
             <div className="space-y-4 animate-fadeIn">
               <VisualCanvas topic={currentTopic} onAskSenpai={handleAskSenpai} />
-              <CueCardsDeck topic={currentTopic} />
+              <CueCardsDeck key={currentTopic?.id} topic={currentTopic} />
             </div>
           )}
 
           {mobileTab === 'metaphor' && (
             <div className="animate-fadeIn">
-              <MetaphorCard topic={currentTopic} onAskSenpai={handleAskSenpai} />
+              <MetaphorCard key={currentTopic?.id} topic={currentTopic} onAskSenpai={handleAskSenpai} />
             </div>
           )}
 
           {mobileTab === 'chat' && (
             <div className="animate-fadeIn">
               <SocraticChat
+                key={currentTopic?.id}
                 topic={currentTopic}
                 thinkingLevel={thinkingLevel}
                 setThinkingLevel={setThinkingLevel}
@@ -167,9 +164,10 @@ export default function App() {
 
             {/* Desktop Tab View */}
             {desktopTab === 'metaphor' ? (
-              <MetaphorCard topic={currentTopic} onAskSenpai={handleAskSenpai} />
+              <MetaphorCard key={currentTopic?.id} topic={currentTopic} onAskSenpai={handleAskSenpai} />
             ) : (
               <SocraticChat
+                key={currentTopic?.id}
                 topic={currentTopic}
                 thinkingLevel={thinkingLevel}
                 setThinkingLevel={setThinkingLevel}
@@ -182,7 +180,7 @@ export default function App() {
           {/* Right Column: Visual Canvas & Cue Cards */}
           <div className="lg:col-span-6 space-y-4">
             <VisualCanvas topic={currentTopic} onAskSenpai={handleAskSenpai} />
-            <CueCardsDeck topic={currentTopic} />
+            <CueCardsDeck key={currentTopic?.id} topic={currentTopic} />
           </div>
         </div>
       </main>

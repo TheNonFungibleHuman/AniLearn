@@ -33,7 +33,7 @@ try {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
   if (!fs.existsSync(generatedDir)) fs.mkdirSync(generatedDir, { recursive: true });
   if (!fs.existsSync(samplesDir)) fs.mkdirSync(samplesDir, { recursive: true });
-} catch (e) {
+} catch {
   // Read-only filesystem in serverless environments
 }
 
@@ -45,7 +45,6 @@ let inMemoryTopics = [];
 
 // Helper to get all topics
 function getAllTopics() {
-  if (inMemoryTopics.length > 0) return inMemoryTopics;
   let initial = [];
   let saved = [];
   if (fs.existsSync(initialTopicsFile)) {
@@ -62,7 +61,10 @@ function getAllTopics() {
       console.error('Error reading saved_topics.json:', e);
     }
   }
-  inMemoryTopics = [...saved, ...initial];
+  if (saved.length > 0 || initial.length > 0) {
+    inMemoryTopics = [...saved, ...initial];
+    return inMemoryTopics;
+  }
   return inMemoryTopics;
 }
 
@@ -78,7 +80,7 @@ function saveTopic(topic) {
 
   try {
     fs.writeFileSync(savedTopicsFile, JSON.stringify(current, null, 2));
-  } catch (e) {
+  } catch {
     console.log('Saved topic to in-memory state (serverless read-only filesystem)');
   }
 }
@@ -150,6 +152,94 @@ async function callGeminiText(prompt, thinkingLevel = 'medium', customKey = null
   }
 
   throw lastError || new Error('All Gemini models failed.');
+}
+
+// Helper to stream Gemini text with SSE
+async function streamGeminiText(prompt, thinkingLevel = 'medium', customKey = null, onChunk) {
+  const key = customKey || GEMINI_API_KEY;
+  const models = [
+    'gemini-3.8-flash',
+    'gemini-3.7-flash',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash',
+    'gemini-3-flash-preview',
+    'gemini-flash-lite-latest'
+  ];
+  let lastError = null;
+
+  const thinkingBudgets = {
+    low: 1024,
+    medium: 2048,
+    high: 4096
+  };
+  const budget = thinkingBudgets[thinkingLevel] || 2048;
+
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          maxOutputTokens: 16384,
+          temperature: 0.8,
+          thinkingConfig: { thinkingBudget: budget }
+        }
+      };
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': key
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn(`Model ${model} streaming error ${response.status}:`, errText.substring(0, 100));
+        lastError = new Error(`${model} Error: ${errText}`);
+        continue;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('data: ')) {
+            const jsonStr = trimmed.slice(6);
+            if (jsonStr === '[DONE]') continue;
+            try {
+              const data = JSON.parse(jsonStr);
+              const parts = data?.candidates?.[0]?.content?.parts || [];
+              for (const part of parts) {
+                if (part.text) {
+                  onChunk(part.text);
+                }
+              }
+            } catch {
+              // Ignore partial JSON
+            }
+          }
+        }
+      }
+      return;
+    } catch (e) {
+      console.warn(`Streaming fetch error with ${model}:`, e.message);
+      lastError = e;
+    }
+  }
+
+  throw lastError || new Error('All Gemini models failed to stream.');
 }
 
 // Helper to generate image via Nano Banana Pro / Google Gemini Image API
@@ -305,7 +395,7 @@ YOUR MISSION:
 2. Provide a crystal-clear FIRST-PRINCIPLES breakdown followed by the formal academic invariants and equations.
 3. Define an annotated Infographic specification with key visual hotspots.
 4. Create 3-4 bite-sized Visual Cue Cards with intuitive physical anchors, clean formulas, and first-principles recall checks.
-5. Generate 1 active recall quiz question testing true intuition (not rote memorization) with 4 options and explanation.
+5. Generate 3 progressive Active Recall Quiz questions forming a diagnostic ladder: Question 1 (Intuition Anchor), Question 2 (Mechanism & Trace), and Question 3 (Adversarial Edge-Case).
 6. Write a precise image generation prompt in ${chosenStyleDesc} to illustrate this topic as an educational anime diagram.
 
 MATHEMATICAL FORMULAS & SCIENTIFIC NOTATION:
@@ -374,10 +464,25 @@ OUTPUT ONLY VALID JSON with the exact following schema:
   ],
   "activeRecallQuiz": [
     {
-      "question": "A conceptual multiple choice question testing real understanding",
+      "tier": "Intuition Anchor",
+      "question": "Everyday physical intuition question testing gut understanding",
       "options": ["Option A", "Option B", "Option C", "Option D"],
       "correctIndex": 0,
-      "explanation": "Why this option is correct and others are not using simple cause-and-effect reasoning"
+      "explanation": "Why this option is correct using simple cause-and-effect reasoning"
+    },
+    {
+      "tier": "Mechanism & Trace",
+      "question": "Question testing step-by-step state change, formula calculation, or invariant trace",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 0,
+      "explanation": "Step-by-step derivation of the correct answer"
+    },
+    {
+      "tier": "Adversarial Edge-Case",
+      "question": "Challenging question probing boundary conditions, failure states, or worst-case limits",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 0,
+      "explanation": "Why boundary conditions fail or hold under this scenario"
     }
   ],
   "imagePrompt": "A strictly technical, educational multi-panel infographic diagram poster in ${chosenStyleDesc}. It MUST detail the technical diagram layout: Panel 1 (Data Structure/State), Panel 2 (Algorithm loop/Binary mapping/Flowchart), Panel 3 (Formula and conversions). Include an anime scholar in the composition inspecting a holographic display, but 70% of the visual space must be dedicated to crisp, labeled technical schematics, tables, and flowcharts. ABSOLUTELY NO generic close-up face portraits."
@@ -427,40 +532,91 @@ OUTPUT ONLY VALID JSON with the exact following schema:
   }
 });
 
-// Socratic Partner Chat
-app.post('/api/chat', async (req, res) => {
-  try {
-    const { topicContext, messages, userMessage, thinkingLevel = 'medium', customKey } = req.body;
+function buildChatPrompt({ topicContext, messages, userMessage, learningMode = 'socratic' }) {
+  const modeDirectives = {
+    socratic: `LEARNING MODE: SOCRATIC GUIDE (ACTIVE RECALL & ELI5)
+- Your goal is to make the student THINK, not passively read walls of text.
+- Never spoon-feed full solutions immediately when asked a question. Give a 1-sentence physical intuition anchor, then ask a targeted question that guides them to deduce the answer themselves.
+- Ground explanations in tangible first principles (water pipes, flashlights, dominoes, Legos).`,
 
-    if (!userMessage || !userMessage.trim()) {
-      return res.status(400).json({ error: 'Message cannot be empty.' });
-    }
+    teach_senpai: `LEARNING MODE: REVERSE FEYNMAN ("TEACH SENPAI" / PROTÉGÉ EFFECT)
+- CRITICAL ROLEPLAY: The student is the TEACHER, and you are their curious, eager junior classmate ("Kohai")!
+- You want the student to explain this concept to you in plain English with simple analogies.
+- If their explanation is clear, praise them and ask a follow-up probing edge-case question.
+- If they hand-wave, use jargon without explaining, or have a misconception, gently ask: "Wait, kohai, why does that happen physically? What happens if...?"
+- Give them a "Feynman Clarity Score" (e.g. 🎯 8.5/10) at the end of your feedback!`,
 
-    const systemPrompt = `You are "SenpaiAI", an empathetic, brilliant anime-enthusiast university study partner and learning senpai.
+    exam_boss: `LEARNING MODE: UNIVERSITY EXAM BOSS BATTLE (ORAL EXAM DEFENSE)
+- CRITICAL ROLEPLAY: You are an exacting, sharp University Professor conducting a high-stakes oral examination.
+- You do NOT accept rote-memorized definitions. You probe boundary conditions, algorithmic invariants, edge cases, and failure modes.
+- Ask ONE demanding question at a time. Challenge their assumptions (e.g., "What if the graph has negative cycle?", "What if NA approaches 1.0?").
+- Rate their response: [DEFENSE ACCEPTED] vs [COUNTER-ARGUMENT REQUIRED].`,
+
+    analogy: `LEARNING MODE: PURE PHYSICAL METAPHOR & INTUITION
+- Translate every equation, bit, and register into a vivid physical contraption (rock candy, ice cube trays, water clocks, train tracks, dominoes).
+- Strip away all intimidating jargon until the physical cause-and-effect is crystal clear.`
+  };
+
+  const chosenModeDirective = modeDirectives[learningMode] || modeDirectives.socratic;
+
+  const systemPrompt = `You are "SenpaiAI", an empathetic, brilliant anime-enthusiast university study partner and learning senpai.
 You are helping the student master the following topic:
 Topic: "${topicContext?.title || 'Computer Science'}"
 Anime Metaphor: "${topicContext?.metaphorTitle || 'Anime Mental Model'}"
 Story Context: "${topicContext?.metaphorStory || ''}"
 Academic Core: "${topicContext?.academicConcept || ''}"
 
-YOUR PEDAGOGICAL PHILOSOPHY (THE FEYNMAN FIRST-PRINCIPLES TECHNIQUE):
-- You follow the golden rule of Richard Feynman: "If you can't explain it to a six-year-old, you don't understand it yourself."
-- You NEVER talk like an arrogant or intimidating university lecturer who drowns the student in dense academic jargon or assumes prior mastery.
-- YOU EXPLAIN FROM FIRST PRINCIPLES (ELI5): Break every single complex idea down into basic, tangible building blocks (Lego bricks, water pipes, flashlights, dominoes, shadow puppets, whisper games, rock candy, bouncers at a club).
-- WHEN EXPLAINING FORMULAS: Never throw raw equations without explaining what every single variable actually represents in the physical world! (e.g. If discussing $CD = k_1 \frac{\lambda}{NA}$, explain: "$\lambda$ is the thickness of our light-paintbrush, and $NA$ is how wide our camera lens opens. Thinner brush = finer lines!").
-- SOCRATIC INTUITION CHECKS: After explaining a concept with an intuitive physical analogy, ask a gentle question testing their gut physical intuition.
-- Keep your tone warm, enthusiastic, supportive, and encouraging ("Let's crack this together, kohai!").
-- Format with clean markdown, bullet points, and code blocks where helpful.
+${chosenModeDirective}
 
 MATHEMATICAL FORMULAS & SCIENTIFIC NOTATION:
 - When writing equations, formulas, physical laws, or variables, format them in clean, standard LaTeX enclosed in $...$ for inline (e.g. "$|\\text{amplitude}|^2$", "$+a + a = 2a$") or $$...$$ for block equations.
 - NEVER put percentages or plain words inside math dollar signs (write "100%", NEVER "$100%$").
 - If a percentage symbol appears inside a LaTeX expression, always escape it with a backslash: "\\%".`;
 
-    const formattedHistory = (messages || []).map(m => `${m.role === 'user' ? 'Student' : 'Senpai'}: ${m.content}`).join('\n');
-    const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${formattedHistory}\n\nStudent: ${userMessage}\n\nSenpai:`;
+  const formattedHistory = (messages || []).map(m => `${m.role === 'user' ? 'Student' : 'Senpai'}: ${m.content}`).join('\n');
+  return `${systemPrompt}\n\nCONVERSATION HISTORY:\n${formattedHistory}\n\nStudent: ${userMessage}\n\nSenpai:`;
+}
 
-    console.log('Generating Socratic response with Gemini 3.8 Flash...');
+// Real-time SSE streaming chat endpoint
+app.post('/api/chat/stream', async (req, res) => {
+  const { topicContext, messages, userMessage, thinkingLevel = 'medium', learningMode = 'socratic', customKey } = req.body;
+
+  if (!userMessage || !userMessage.trim()) {
+    return res.status(400).json({ error: 'Message cannot be empty.' });
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  if (res.flushHeaders) res.flushHeaders();
+
+  const fullPrompt = buildChatPrompt({ topicContext, messages, userMessage, learningMode });
+
+  try {
+    console.log(`Streaming response with Gemini 3.8 Flash (Mode: ${learningMode}, Thinking: ${thinkingLevel})...`);
+    await streamGeminiText(fullPrompt, thinkingLevel, customKey, (chunk) => {
+      res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
+    });
+    res.write('data: [DONE]\n\n');
+    res.end();
+  } catch (err) {
+    console.error('Error in /api/chat/stream:', err);
+    res.write(`data: ${JSON.stringify({ error: err.message || 'Streaming failed' })}\n\n`);
+    res.end();
+  }
+});
+
+// Socratic Partner Chat (Synchronous fallback)
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { topicContext, messages, userMessage, thinkingLevel = 'medium', learningMode = 'socratic', customKey } = req.body;
+
+    if (!userMessage || !userMessage.trim()) {
+      return res.status(400).json({ error: 'Message cannot be empty.' });
+    }
+
+    const fullPrompt = buildChatPrompt({ topicContext, messages, userMessage, learningMode });
+    console.log(`Generating response with Gemini 3.8 Flash (Mode: ${learningMode}, Thinking: ${thinkingLevel})...`);
     const reply = await callGeminiText(fullPrompt, thinkingLevel, customKey, false);
 
     res.json({ reply });

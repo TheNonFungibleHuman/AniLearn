@@ -16,7 +16,7 @@ export default function MathRenderer({
   const sanitized = sanitizeMathText(String(content));
 
   const defaultComponents = {
-    p: ({ node, ...props }) => {
+    p: ({ ...props }) => {
       if (inline) {
         return <span className={props.className} {...props} />;
       }

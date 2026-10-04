@@ -4,7 +4,7 @@
     "title": "Semiconductor Manufacturing: From Silica Sand to Integrated Circuits",
     "subject": "Computer Systems Engineering / Solid-State Device Physics",
     "style": "shinkai",
-    "imageUrl": "/generated/topic-1791004860636-1791004928503.png",
+    "imageUrl": "/generated/topic-1791004860636_1791004877275.jpg",
     "metaphorTitle": "The Celestial Forge of Silicon: Carving Cities of Light",
     "metaphorStory": "Imagine a miniature metropolis where billions of lightning-fast couriers deliver messages day and night. But instead of concrete and steel, this entire city is carved inside a micro-thin crystal mirror spun from ordinary river sand. Anime light-alchemists use beams of deep ultraviolet starlight as chisels, etching billions of microscopic gates onto the crystal without ever touching it. Each tiny gate is an on/off switch: open, electricity flows (1); closed, electricity stops (0). Together, billions of these synchronized switches give life to the digital world.",
     "academicConcept": "### 1. First-Principles Physical Intuition (ELI5)\nWhat is a computer chip? At its heart, a microchip is simply a flat city packed with billions of microscopic on/off light switches called **transistors**. When a switch is ON, electricity flows ($1$); when OFF, electricity stops ($0$). Flipping billions of these switches billions of times every second is how computers calculate, render graphics, and think!\n\nWhere do we get the building material? **Ordinary beach sand!** Sand is silica ($SiO_2$)—silicon bonded to oxygen. We melt sand in massive furnaces to strip away oxygen, leaving raw silicon.\n\nTo turn raw silicon into chips, we follow three intuitive physical steps:\n- **Growing Rock Candy (Czochralski Crystal Growth):** Atoms inside sand are jumbled like a messy pile of marbles. To make chips, electrons need a perfectly smooth atomic highway. We melt the silicon at 1,414°C, dip a tiny starter crystal into the liquid, and slowly pull and spin it upward—exactly like dipping a string into hot sugar water to grow rock candy! This produces a flawless single-crystal cylinder (boule), which we slice with diamond wire into mirror-polished disks called **wafers**.\n- **Drawing with Light Stencils (Photolithography):** Modern transistors are $1,000\\times$ thinner than a single strand of human hair. No mechanical knife or laser can carve something so tiny. Instead, we use **light shadows**! We coat the wafer in light-sensitive syrup (photoresist), place a stencil mask overhead, and blast it with extreme ultraviolet light (EUV, $\\lambda = 13.5\\text{nm}$). Where light strikes, the syrup hardens, copying the blueprint onto the silicon!\n- **Filling Ice Cube Trays (Dual-Damascene Wires):** To connect billions of switches, we can't easily cut copper lines with gas plasma. So we do the reverse: we carve microscopic trenches into glass insulation, pour liquid copper into the grooves (like filling ice cube trays with water), and scrape off the extra metal with a chemical squeegee (**Chemical-Mechanical Planarization**, CMP).\n\n### 2. The Governing Equations & Exam Invariants\n- **Rayleigh's Resolution Limit:** The minimum printable line width (Critical Dimension, $CD$) is:\n  $$CD = k_1 \\frac{\\lambda}{\\text{NA}}$$\n  Where $\\lambda$ is the light wavelength (paintbrush thickness), $\\text{NA}$ is the numerical aperture (how wide the lens opens), and $k_1$ is a manufacturing factor ($k_1 \\ge 0.25$). Shorter wavelengths ($\\lambda$) create finer brushes!\n- **Depth of Focus (DoF):**\n  $$\\text{DoF} = k_2 \\frac{\\lambda}{\\text{NA}^2}$$\n  Increasing $\\text{NA}$ shrinks the depth of focus quadratically, explaining why the industry transitioned to shorter wavelength EUV ($13.5\\text{nm}$) instead of just building wider lenses.\n- **The \"Nine 9s\" Purity Rule:** Silicon must achieve $99.9999999\\%$ purity ($9\\text{N}$ to $11\\text{N}$). A single stray foreign metal atom in a billion acts like an atomic pothole, trapping electrons and draining battery power.",
@@ -62,6 +62,7 @@
     ],
     "activeRecallQuiz": [
       {
+        "tier": "Intuition Anchor",
         "question": "According to Rayleigh’s resolution criterion CD = k1 · (λ / NA), what physical change allows us to print smaller, more tightly packed transistors?",
         "options": [
           "Decreasing the light wavelength λ to use a thinner light brush",
@@ -71,6 +72,30 @@
         ],
         "correctIndex": 0,
         "explanation": "Smaller λ means a thinner light wave paintbrush, allowing us to stencil sharper, narrower lines without diffraction blur."
+      },
+      {
+        "tier": "Mechanism & Trace",
+        "question": "In the Dual-Damascene copper interconnect process, why do chip fabricators etch trenches into glass first and scrape with CMP, rather than etching copper lines with plasma gas?",
+        "options": [
+          "Copper does not form volatile gaseous compounds at room temperature when blasted by plasma etching gas; it spatters like sticky mud, so carving trenches and polishing flat is far cleaner",
+          "Copper melts at only 100°C so plasma gas would vaporize the whole wafer",
+          "Glass is more conductive than copper at nanometer scales",
+          "CMP polishing is only used for decorative wafer luster"
+        ],
+        "correctIndex": 0,
+        "explanation": "Unlike aluminum, copper cannot be easily etched with reactive ion plasma because copper halides have very low vapor pressure. The Damascene method solves this by inverting the process: carve the mold first, fill it with copper, and squeegee the excess flat!"
+      },
+      {
+        "tier": "Adversarial Edge-Case",
+        "question": "Why does semiconductor silicon strictly require \"Nine 9s\" (99.9999999%) purity, where fewer than 1 impurity atom per billion is tolerated?",
+        "options": [
+          "At gigahertz clock rates and nanometer gate widths, stray metallic atoms act as charge traps, causing parasitic leakage currents, catastrophic battery drain, and thermal runaway",
+          "Impurity atoms make the silicon wafer physically crack when touched",
+          "Photolithography laser beams bounce backwards if impurities exist",
+          "Unpurified silicon cannot be sliced by diamond wire saws"
+        ],
+        "correctIndex": 0,
+        "explanation": "When transistors are only a few dozen atoms wide, a single misplaced metallic impurity creates an energy well in the bandgap (Shockley-Read-Hall recombination center). Millions of these leak electrical current continuously, overheating the chip even when it is idle!"
       }
     ],
     "imagePrompt": "A strictly technical, educational multi-panel infographic diagram poster in anime style. Panel 1: Molten silicon crystal growth (Czochralski boule). Panel 2: EUV photolithography light stencil etching on silicon wafer. Panel 3: Multilevel copper damascene interconnect cross section. Clear annotations, formula CD = k1 * (lambda / NA)."
@@ -80,7 +105,7 @@
     "title": "ASCII: The 7-Bit Foundation of Digital Typography",
     "subject": "Computer Architecture & Information Theory",
     "style": "shinkai",
-    "imageUrl": "/samples/ascii_shinkai.jpg",
+    "imageUrl": "/generated/topic-1790985382923_ascii.jpg",
     "metaphorTitle": "The 7-String Harp of Universal Glyphs",
     "metaphorStory": "In the early era of computing machines, every manufacturer spoke a discordant dialect: an IBM machine could not read the dispatches of a teleprinter. To bridge this Babel, engineers forged the Sacred 7-String Harp. With seven binary strings—each plucked either High (1) or Low (0)—exactly 128 cosmic tones resonate. The 65th chord rings as the mighty letter \"A\". Pluck the 6th string, and the tone softens into lowercase \"a\". The digital universe finally spoke one common language.",
     "academicConcept": "### 1. First-Principles Physical Intuition (ELI5)\nComputers are physical electrical circuits. Inside their chips and wires, there are no letters, words, or pictures—only **voltage**:\n- High voltage (electricity ON) $= 1$\n- Low voltage (electricity OFF) $= 0$\n\nHow do we teach an electrical wire to transmit the letter \"A\" or the word \"HELLO\"? We use a **Secret Decoder Ring**: an agreed-upon dictionary where every character is assigned a specific number!\n\nIn 1963, engineers created **ASCII** (American Standard Code for Information Interchange).\n- **Why 7 Bits?** Each bit is an independent on/off switch. With 7 switches, the number of distinct combinations is $2^7 = 128$ (numbered $0$ through $127$).\n- **What fits into 128 slots?**\n  - $26$ uppercase letters ($A-Z$)\n  - $26$ lowercase letters ($a-z$)\n  - $10$ numerical digits ($0-9$)\n  - $33$ punctuation and symbols (`!`, `@`, `#`, `$`, etc.)\n  - $33$ invisible control signals (like Enter/Newline, Backspace, Tab, and Bell chime)\n- **The Ingenious Bit-Flip Trick:** Uppercase `'A'` is $65$ (`01000001`). Lowercase `'a'` is $97$ (`01100001`). Notice that $97 - 65 = 32 = 2^5$! To turn any capital letter into lowercase, a computer does NOT need to do slow math—it just flips the 6th physical wire to ON (`char | 0x20`) in a single nanosecond clock cycle!\n\n### 2. The Binary Encoding Structure & Formula\n$$\\text{Total Symbols} = 2^k = 2^7 = 128$$\n- **Control Codes ($0 - 31$ & $127$):** `0x00` (NULL), `0x0A` (Line Feed), `0x0D` (Carriage Return), `0x1B` (Escape).\n- **Printable Characters ($32 - 126$):** Starts with Space (`32` or `0x20`) and ends with Tilde (`126` or `0x7E`).\n- **Digit Offset Property:** The character `'0'` is decimal $48$ (`00110000_2`). The lower nibble (last 4 bits) directly encodes the actual integer: `'7'` is `00110111_2` $\\to$ strip `0011` and you get `0111_2 = 7`.",
@@ -138,15 +163,40 @@
     ],
     "activeRecallQuiz": [
       {
-        "question": "If uppercase 'B' has the ASCII code 66 (01000010 in binary), what is the ASCII code for lowercase 'b'?",
+        "tier": "Intuition Anchor",
+        "question": "Why did original ASCII define 128 characters (7 bits) instead of utilizing all 256 combinations of an 8-bit byte?",
         "options": [
-          "98 (01100010)",
-          "82 (01010010)",
-          "130 (10000010)",
-          "67 (01000011)"
+          "1960s teleprinters and telegraph lines optimized bandwidth; 128 characters covered all English letters, digits, and control codes, leaving the 8th bit for parity error checking",
+          "Engineers did not know how to build memory systems with 8 bits",
+          "The US government classified the remaining 128 characters as top secret",
+          "Calculators in 1963 could only count up to 127"
         ],
         "correctIndex": 0,
-        "explanation": "Add 32 (or flip bit 5 to 1): 66 + 32 = 98 (01100010). This is the universal uppercase-to-lowercase offset in ASCII."
+        "explanation": "Teletype lines in the 1960s suffered from electrical noise. Limiting the character set to 7 bits (2^7 = 128) left the 8th bit available as a parity bit to detect data corruption during noisy telephone transmission."
+      },
+      {
+        "tier": "Mechanism & Trace",
+        "question": "In 7-bit ASCII, uppercase 'A' is 65 (01000001_2) and lowercase 'a' is 97 (01100001_2). What bitwise operation converts any uppercase ASCII letter to lowercase in a single CPU cycle?",
+        "options": [
+          "`char | 0x20` (Bitwise OR with 32, flipping bit 5 from 0 to 1)",
+          "`char & 0x20` (Bitwise AND with 32)",
+          "`char ^ 0xFF` (Bitwise NOT)",
+          "`char << 1` (Bitwise Left Shift by 1)"
+        ],
+        "correctIndex": 0,
+        "explanation": "ASCII was ingeniously designed so that 97 - 65 = 32 = 2^5. Bit 5 is literally the case toggle switch! Bitwise OR with 0x20 (00100000_2) sets bit 5 to 1 without altering any other bits."
+      },
+      {
+        "tier": "Adversarial Edge-Case",
+        "question": "What caused the infamous \"Mojibake\" character encoding corruption when non-English text was transmitted before universal UTF-8 adoption?",
+        "options": [
+          "Different operating systems and regions assigned conflicting symbols (accented letters, Cyrillic, Kanji) to the same high 128 byte codes (128-255) across different ANSI/OEM code pages",
+          "Computer memory chips could not store non-English characters",
+          "The ASCII standard disallowed vowels from foreign languages",
+          "Teleprinters melted when receiving numbers greater than 128"
+        ],
+        "correctIndex": 0,
+        "explanation": "When 8-bit bytes became standard, IBM, Microsoft, and Unix created competing code pages (Windows-1252, ISO-8859-1, Shift-JIS) for codes 128-255. A Russian letter encoded in KOI8-R read by a Western European computer became random punctuation!"
       }
     ],
     "imagePrompt": "Technical infographic diagram of the 7-bit ASCII character encoding table, showing binary breakdown, 0-127 index grid, bit-5 toggle mechanic, Shinkai anime aesthetic with glowing holographic console."
@@ -156,7 +206,7 @@
     "title": "Demystifying Greedy Algorithms: The Logic of Immediate Gain",
     "subject": "Computer Science / Algorithms & Optimization",
     "style": "shinkai",
-    "imageUrl": "/samples/dijkstra_shinkai.jpg",
+    "imageUrl": "/generated/topic-1790984798326_1790984846254.jpg",
     "metaphorTitle": "The Mountain Courier: Choosing the Steepest Immediate Trail",
     "metaphorStory": "Imagine a courier traversing a fog-covered mountain range at twilight. She cannot see the entire map of valleys ahead. At every crossroad, she simply chooses the path that looks steepest and closest to her destination right now, never turning back. When the terrain obeys natural harmony, this immediate ambition guides her straight to the highest peak in record time. But in treacherous valleys with deceptive dead-ends, grabbing the sweetest fruit today blinds her to the canyon ahead.",
     "academicConcept": "### 1. First-Principles Physical Intuition (ELI5)\nWhat is a **Greedy Algorithm**?\nImagine you are at an all-you-can-eat buffet with a 2-minute timer. Instead of reading the whole menu or strategizing for 30 minutes, you simply grab the biggest, most delicious dish sitting directly in front of you right now!\n\nA greedy algorithm solves problems by always making the **locally optimal choice** at each immediate step, hoping that these quick wins assemble into the **globally best solution**. It never second-guesses or backtracks.\n\n**When does it work like magic?**\nThink of giving change using regular coins: 25¢ (quarters), 10¢ (dimes), 5¢ (nickels), 1¢ (pennies). If you owe 36 cents:\n1. Grab the biggest coin that fits: a 25¢ quarter (leaving 11¢).\n2. Grab the next biggest coin: a 10¢ dime (leaving 1¢).\n3. Grab a 1¢ penny.\nTotal: 3 coins! By being greedy and taking the largest coin at every second, you automatically get the fewest possible coins. This works because standard coin systems have the **Greedy Choice Property**.\n\n**When does it completely fail? (The Deceptive Trap)**\nImagine a treasure maze:\n- Door A gives you 5 gold coins right now, but dead-ends into a dragon's pit.\n- Door B gives you 0 gold coins right now, but leads to an open cave with 1,000,000 coins!\nA greedy algorithm sees 5 vs 0, greedily picks Door A, and misses the fortune! When immediate rewards block bigger future rewards, you must use **Dynamic Programming** or **Backtracking** instead.\n\n### 2. The Mathematical Invariant & Proof Strategy\nA greedy algorithm is provably optimal if and only if the problem satisfies two properties:\n1. **Greedy Choice Property:** A global optimum can be reached by making a locally optimal greedy choice without considering subproblems.\n2. **Optimal Substructure:** An optimal solution to the overall problem contains within it optimal solutions to subproblems.\n\n**Proof by \"Exchange Argument\":**\nTo prove a greedy algorithm works on an exam, assume there exists a hypothetical magical optimal solution $O$ that differs from our greedy solution $G$. Show that you can swap an element of $O$ with the greedy choice without making the total cost worse:\n$$\\text{Cost}(O') \\le \\text{Cost}(O)$$\nRepeating this exchange proves the greedy solution is just as good as any optimal solution!",
@@ -214,6 +264,7 @@
     ],
     "activeRecallQuiz": [
       {
+        "tier": "Intuition Anchor",
         "question": "Under coin denominations {1, 3, 4}, what change will a Greedy algorithm produce for 6 cents versus the true optimal combination?",
         "options": [
           "Greedy: {4, 1, 1} (3 coins); Optimal: {3, 3} (2 coins)",
@@ -223,6 +274,30 @@
         ],
         "correctIndex": 0,
         "explanation": "Greedy greedily picks 4 first, forcing two 1s for a total of 3 coins. But two 3-cent coins sum to 6 in just 2 coins!"
+      },
+      {
+        "tier": "Mechanism & Trace",
+        "question": "Why does the Fractional Knapsack problem succeed with a greedy strategy (sort by value/weight), while the 0/1 Knapsack problem fails?",
+        "options": [
+          "Divisible items allow filling the knapsack to 100% capacity with the highest density items; discrete items can leave empty unused gaps that degrade total value",
+          "Fractional knapsack requires dynamic programming tables",
+          "0/1 knapsack items have zero weight",
+          "Greedy cannot sort floating-point numbers"
+        ],
+        "correctIndex": 0,
+        "explanation": "With divisible dust or liquid, you can take fractional amounts of the best density items. With solid indivisible objects, taking the highest density object might leave a gap where no other item fits, whereas two lower-density items might fill the space perfectly."
+      },
+      {
+        "tier": "Adversarial Edge-Case",
+        "question": "What formal mathematical technique is used on university exams to prove that a greedy algorithm is globally optimal?",
+        "options": [
+          "The Exchange Argument (Show that swapping any arbitrary optimal choice with the greedy choice never worsens the objective function)",
+          "Proof by Contradiction using Gödel's Incompleteness Theorem",
+          "Testing 100 random inputs with Monte Carlo simulation",
+          "Showing that the algorithm runs in O(N log N) time"
+        ],
+        "correctIndex": 0,
+        "explanation": "The Exchange Argument assumes an optimal solution O exists. If O differs from greedy G, we identify the first divergence and prove that swapping the element to match G maintains or improves the score. By induction, G must be optimal!"
       }
     ],
     "imagePrompt": "Educational technical infographic diagram of greedy algorithm mechanics, decision tree bifurcation, exchange argument illustration, anime aesthetic."
@@ -232,7 +307,7 @@
     "title": "Mastering the Memory Sanctum: Cache Hierarchy & Locality",
     "subject": "Computer Architecture & Systems Engineering",
     "style": "shinkai",
-    "imageUrl": "/samples/deadlock_shinkai.jpg",
+    "imageUrl": "/generated/topic-1790983483664_1790983507182.jpg",
     "metaphorTitle": "The Master Chef and the Basement Cold-Storage",
     "metaphorStory": "Imagine a legendary anime chef in a bustling kitchen. The chef can chop onions in one nanosecond. But the giant food storehouse (Main Memory / RAM) is located down in the castle basement: walking down there takes 100 long nanoseconds! If the chef walked to the basement for every single slice of garlic, the whole kingdom would starve. Instead, the chef keeps a tiny cutting board right next to their knife (L1 Cache). If the garlic is on the board, cooking never pauses.",
     "academicConcept": "### 1. First-Principles Physical Intuition (ELI5)\nYour computer's processor (CPU) is an astonishingly fast brain—it can execute calculations in under $0.5\\text{ nanoseconds}$.\nHowever, Main Memory (RAM) is physically located inches away on the motherboard through copper traces and capacitors. Fetching data from RAM takes $50 - 100\\text{ nanoseconds}$. That means if the CPU had to wait for RAM every time, it would spend **$99\\%$ of its life sitting idle doing nothing**!\n\nTo solve this physical speed mismatch, engineers built a **Memory Hierarchy**:\n- **Registers & L1 Cache:** Directly inside the CPU chip, tiny storage ($64\\text{ KB}$), practically instant ($1\\text{ clock cycle} \\approx 1\\text{ns}$).\n- **L2 & L3 Cache:** Slightly larger ($1 - 32\\text{ MB}$), shared across cores ($3 - 10\\text{ns}$).\n- **RAM:** Huge ($16 - 64\\text{ GB}$), but far away ($50 - 100\\text{ns}$).\n- **SSD / Hard Drive:** Massive ($1\\text{ TB}$), but takes thousands of nanoseconds.\n\n**Why does this small cache work? The Principle of Locality!**\nComputer programs are not random:\n1. **Temporal Locality (\"Used recently? You'll use it again!\"):** If a chef picks up the salt shaker, they keep it on the counter because the soup will need more salt in 10 seconds. In code, a loop variable like `for (let i = 0; i < 1000; i++)` reads `i` a thousand times in a row.\n2. **Spatial Locality (\"Neighbors hang together!\"):** If the chef needs one egg, they don't carry a single egg from the fridge—they carry the whole carton of 12! When the CPU fetches one byte from RAM, it automatically grabs a whole **64-byte block called a Cache Line**, because your program is almost certainly about to read the neighboring bytes!\n\n### 2. The Mathematical Performance Metric\n$$\\text{AMAT (Average Memory Access Time)} = t_{\\text{hit}} + (1 - h) \\times t_{\\text{miss penalty}}$$\nWhere:\n- $t_{\\text{hit}}$ is cache hit time (e.g. $1\\text{ns}$)\n- $h$ is cache hit rate (typically $95\\% - 99\\%$)\n- $t_{\\text{miss penalty}}$ is time to fetch from RAM ($100\\text{ns}$)\n\nEven a tiny drop in hit rate from $99\\%$ to $90\\%$ increases average memory access time by **$5.5\\times$**, causing the entire system to feel sluggish!",
@@ -290,15 +365,40 @@
     ],
     "activeRecallQuiz": [
       {
-        "question": "When reading a 64-bit integer (8 bytes) that misses the cache, how many bytes does the hardware actually fetch from Main Memory into L1?",
+        "tier": "Intuition Anchor",
+        "question": "When a CPU reads a 4-byte integer from array `arr[0]`, the memory controller automatically loads an entire 64-byte block into L1 cache. What physical principle does this exploit?",
         "options": [
-          "64 bytes (the entire cache line)",
-          "8 bytes (only the requested integer)",
-          "4096 bytes (the entire virtual page)",
-          "1 byte"
+          "Spatial Locality (Programs frequently access memory addresses close to recently accessed data)",
+          "Temporal Locality (Programs reuse the same variable in a loop)",
+          "Virtual Memory Paging",
+          "Instruction Pipeline Branch Prediction"
         ],
         "correctIndex": 0,
-        "explanation": "Hardware always transfers memory in fixed-size blocks (typically 64 bytes) to exploit spatial locality for neighboring reads."
+        "explanation": "Spatial locality recognizes that code typically reads contiguous structures (arrays, structs, objects). Fetching a 64-byte Cache Line amortizes memory bus latency across neighboring elements."
+      },
+      {
+        "tier": "Mechanism & Trace",
+        "question": "Average Memory Access Time is defined as: AMAT = t_hit + (1 - h) · t_miss. If L1 hit time is 1ns, RAM miss penalty is 100ns, and hit rate drops from 99% to 90%, by what factor does AMAT worsen?",
+        "options": [
+          "AMAT degrades from 2.0ns to 11.0ns (a 5.5x slowdown for just a 9% hit drop)",
+          "AMAT degrades by exactly 9%",
+          "AMAT stays identical because CPU clock speed is constant",
+          "AMAT degrades from 100ns to 1000ns"
+        ],
+        "correctIndex": 0,
+        "explanation": "At h=0.99: AMAT = 1 + (0.01)(100) = 2ns. At h=0.90: AMAT = 1 + (0.10)(100) = 11ns. 11 / 2 = 5.5x! Because RAM is 100x slower, even a slight drop in cache hit rate destroys CPU throughput."
+      },
+      {
+        "tier": "Adversarial Edge-Case",
+        "question": "What is \"False Sharing\" in multi-threaded concurrent programming, and how does it devastate multi-core CPU performance?",
+        "options": [
+          "Two threads running on separate CPU cores modify independent variables that reside on the same 64-byte cache line, forcing cache coherence protocols (MESI) to repeatedly invalidate each core's cache",
+          "Two threads attempt to write to the same virtual memory page simultaneously",
+          "A thread reads data that was deleted by the operating system garbage collector",
+          "Hardware prefetchers mispredict which loop will execute next"
+        ],
+        "correctIndex": 0,
+        "explanation": "CPUs track cache coherence at the 64-byte cache line level, not per variable. If Core 1 writes to variable X and Core 2 writes to variable Y on the same line, the cores constantly ping-pong ownership, invalidating each other's L1 caches and stalling pipelines."
       }
     ],
     "imagePrompt": "Technical schematic of CPU multi-level cache hierarchy, L1 L2 L3 registers and RAM, spatial locality 64-byte line diagram, anime laboratory setting."

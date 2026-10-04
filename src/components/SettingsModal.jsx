@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Key, Cpu, Image as ImageIcon } from 'lucide-react';
+import { X, Cpu, Image as ImageIcon } from 'lucide-react';
 
 export default function SettingsModal({ isOpen, onClose }) {
   const [apiKey, setApiKey] = useState('');

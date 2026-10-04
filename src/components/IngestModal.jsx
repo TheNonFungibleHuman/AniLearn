@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Loader2, Sparkles } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 
 export default function IngestModal({ isOpen, onClose, onTopicCreated }) {
   const [topicText, setTopicText] = useState('');

@@ -68,15 +68,40 @@
     ],
     "activeRecallQuiz": [
       {
-        "question": "If Node C is extracted from the min-heap with distance 8, can any later path reduce C’s distance in a graph with non-negative edge weights?",
+        "tier": "Intuition Anchor",
+        "question": "Under Dijkstra's expanding water-ripple model, why is a node's distance permanently finalized the moment it is extracted from the Min-Heap?",
         "options": [
-          "No, because all remaining unvisited nodes already have distance >= 8 and non-negative edges can only add distance.",
-          "Yes, if another path has more intermediate nodes.",
-          "Yes, if the destination node has not been reached yet.",
-          "Only if the graph is a directed acyclic graph (DAG)."
+          "Because all remaining edges have non-negative weights, so no longer detour through unvisited nodes can ever produce a shorter total distance",
+          "Because the destination node sends an acknowledgment packet backwards",
+          "Because the priority queue automatically deletes visited edges",
+          "Because the algorithm runs a second pass with Breadth-First Search"
         ],
         "correctIndex": 0,
-        "explanation": "Because all edge weights are >= 0, traversing through any remaining unvisited node (which is already >= 8 away) can only add more distance, never less."
+        "explanation": "With non-negative edge weights (w ≥ 0), every extra step only adds positive distance. Since the extracted node currently has the smallest tentative distance among all reachable unvisited nodes, any alternative roundabout path would already start with an equal or greater distance!"
+      },
+      {
+        "tier": "Mechanism & Trace",
+        "question": "Given an edge (u, v) with weight w(u, v) = 4, where dist[u] = 6 and current dist[v] = 12. What does the Edge Relaxation step do?",
+        "options": [
+          "Updates dist[v] to 10 (6 + 4) because 10 < 12, and updates v's parent pointer to u",
+          "Leaves dist[v] at 12 because v was already registered",
+          "Sets dist[u] to 12 - 4 = 8",
+          "Throws an invariant violation error"
+        ],
+        "correctIndex": 0,
+        "explanation": "Relaxation tests if dist[u] + w(u, v) < dist[v]. Here, 6 + 4 = 10 < 12. Since passing through u is a shorter shortcut, dist[v] is tightened (relaxed) to 10."
+      },
+      {
+        "tier": "Adversarial Edge-Case",
+        "question": "Why does Dijkstra's algorithm fail when a single edge in the graph has a negative weight (e.g. -5)?",
+        "options": [
+          "It locks in nodes permanently upon extraction, so a negative edge discovered later could retroactively make an already finalized node cheaper, shattering the greedy proof",
+          "It causes an infinite loop in the Min-Heap comparator",
+          "Negative weights cannot be stored in 32-bit floating point registers",
+          "Dijkstra's algorithm automatically converts negative weights to zero"
+        ],
+        "correctIndex": 0,
+        "explanation": "The greedy choice invariant assumes visiting more nodes only increases path length. A negative weight acts like a time-travel shortcut, meaning an already locked-in node could have been reached even cheaper via the negative detour. Use Bellman-Ford or SPFA instead!"
       }
     ],
     "imagePrompt": "Technical anime infographic diagram illustrating Dijkstra shortest path algorithm with glowing graph nodes, edge relaxation formulas, priority queue min-heap visual."
@@ -144,15 +169,40 @@
     ],
     "activeRecallQuiz": [
       {
-        "question": "What traversal order on a Binary Search Tree produces all stored values in ascending sorted numerical order?",
+        "tier": "Intuition Anchor",
+        "question": "What happens to the search complexity of an un-balanced Binary Search Tree if you insert values in strictly ascending sorted order: [10, 20, 30, 40, 50]?",
         "options": [
-          "In-Order Traversal (Left, Root, Right)",
-          "Pre-Order Traversal (Root, Left, Right)",
-          "Post-Order Traversal (Left, Right, Root)",
-          "Level-Order Traversal (Breadth-First)"
+          "It degenerates into a single linear linked list with O(N) search time instead of O(log N)",
+          "It automatically rotates at the root into a perfectly balanced tree",
+          "The search time improves to O(1) due to cache locality",
+          "The tree rejects sequential insertions as duplicate keys"
         ],
         "correctIndex": 0,
-        "explanation": "In-Order visits smaller elements in the left subtree first, then the root, then larger elements in the right subtree."
+        "explanation": "Without self-balancing rebalancing rotations, inserting sorted elements always appends to the right child, stretching the tree into an N-node linked list where searching for the last node requires walking all N nodes."
+      },
+      {
+        "tier": "Mechanism & Trace",
+        "question": "In an AVL self-balancing tree, if Node A has Balance Factor +2 (left-heavy) and its left child Node B has Balance Factor -1 (right-heavy), which rotation sequence is required?",
+        "options": [
+          "Left-Right Double Rotation (Rotate left on child B, then rotate right on parent A)",
+          "Single Right Rotation on parent A",
+          "Single Left Rotation on parent A",
+          "Right-Left Double Rotation on root"
+        ],
+        "correctIndex": 0,
+        "explanation": "A zig-zag shape (Left-Right) cannot be fixed with one rotation because the heavy grandchild is in the middle. We first rotate the child left to straighten the bend into a pure line, then rotate the parent right to balance."
+      },
+      {
+        "tier": "Adversarial Edge-Case",
+        "question": "Why do production database engines (PostgreSQL, MySQL InnoDB) use B+ Trees with high branching factor (B ≥ 100) instead of AVL or Red-Black binary trees for disk storage?",
+        "options": [
+          "Disks read data in large 4KB-16KB blocks; a B+ tree node holds hundreds of keys per block, reducing tree height to 3-4 disk seek operations instead of 30+ seeks in a binary tree",
+          "Binary search trees cannot store string data types on disk",
+          "Red-Black trees require too much RAM to compute rotations",
+          "B+ trees do not require index locks during concurrent transactions"
+        ],
+        "correctIndex": 0,
+        "explanation": "Disk I/O latency is orders of magnitude slower than CPU memory. Binary trees have height O(log_2 N), requiring ~30 seeks for 1 billion items. B+ trees with branching factor 100+ have height O(log_100 N) ≈ 3 seeks!"
       }
     ],
     "imagePrompt": "Technical infographic diagram of Binary Search Tree, AVL tree rotations, in-order traversal flow, balanced vs degenerate trees, anime aesthetics."
@@ -220,15 +270,40 @@
     ],
     "activeRecallQuiz": [
       {
-        "question": "Which of the following interventions is guaranteed to prevent deadlocks from ever occurring across multiple threads?",
+        "tier": "Intuition Anchor",
+        "question": "Which of the 4 Coffman conditions for deadlock is broken when an engineering team mandates a strict global lock hierarchy (always acquire Lock A before Lock B)?",
         "options": [
-          "Enforcing a strict global ordering on lock acquisition (e.g., always acquire Lock A before Lock B)",
-          "Increasing the clock speed of the CPU processor",
-          "Replacing all Mutexes with Spinlocks",
-          "Allowing threads to hold unlimited locks without checks"
+          "Circular Wait (No cycle of threads waiting for each other's held locks can ever form)",
+          "Mutual Exclusion (Threads can now share resources concurrently)",
+          "Hold and Wait (Threads must release all locks before requesting new ones)",
+          "No Preemption (The OS forcefully steals locks from blocked threads)"
         ],
         "correctIndex": 0,
-        "explanation": "Strict global lock ordering breaks the Circular Wait condition, making deadlock cycles mathematically impossible."
+        "explanation": "Enforcing a strict ascending order of lock acquisition prevents cycles. A thread holding Lock #2 can never request Lock #1, making a circular wait cycle mathematically impossible!"
+      },
+      {
+        "tier": "Mechanism & Trace",
+        "question": "How does a hardware atomic instruction like `Test-And-Set` or `Compare-And-Swap` (CAS) ensure correct Mutex locking without race conditions?",
+        "options": [
+          "It reads the memory value and updates it in a single uninterruptible memory bus cycle, preventing two CPU cores from acquiring the lock simultaneously",
+          "It puts the thread to sleep for exactly 1 millisecond",
+          "It disables power to all other CPU cores temporarily",
+          "It clones the memory address so each thread has its own private lock"
+        ],
+        "correctIndex": 0,
+        "explanation": "Software-only checks (`if (locked == 0) locked = 1`) suffer from a race window between the read and the write. Atomic hardware instructions lock the memory bus or cache line so checking and setting occurs as an indivisible atom."
+      },
+      {
+        "tier": "Adversarial Edge-Case",
+        "question": "What is the critical behavioral difference between Deadlock and Livelock?",
+        "options": [
+          "In Deadlock, threads are permanently blocked (asleep) waiting for resources; in Livelock, threads actively execute state changes and consume 100% CPU, but make zero forward progress",
+          "Deadlock occurs in databases, while Livelock only occurs in operating system kernels",
+          "Livelock resolves automatically after 60 seconds of timeout",
+          "Deadlock involves memory leaks, while Livelock involves CPU overheating"
+        ],
+        "correctIndex": 0,
+        "explanation": "Deadlock is two polite people waiting at a doorway forever without moving. Livelock is two polite people repeatedly stepping to the left and right at the exact same time, actively moving and burning CPU cycles without ever passing through!"
       }
     ],
     "imagePrompt": "Technical OS infographic diagram illustrating concurrency race conditions, mutex mutual exclusion, deadlock Coffman conditions circular wait graph, anime aesthetic."
@@ -296,15 +371,40 @@
     ],
     "activeRecallQuiz": [
       {
-        "question": "What mathematical principle enables backpropagation to calculate error gradients layer-by-layer moving backward from the loss?",
+        "tier": "Intuition Anchor",
+        "question": "Why is Backpropagation mathematically so much faster for training neural networks than numerical perturbation (finite differences)?",
         "options": [
-          "The Chain Rule of Calculus",
-          "Bayes’ Theorem of Conditional Probability",
-          "Newton’s Law of Universal Gravitation",
-          "The Fourier Transform"
+          "Backprop uses the Chain Rule to calculate gradients for all W weights in a single backward pass (O(W)), whereas numerical differences requires perturbing each weight individually (O(W^2))",
+          "Backprop does not require computing derivatives or matrix multiplications",
+          "Backpropagation uses quantum superposition on GPU Tensor Cores",
+          "Numerical differences only works for linear models"
         ],
         "correctIndex": 0,
-        "explanation": "The Chain Rule states that the derivative of composite functions is the product of their individual derivatives, allowing layer-by-layer gradient calculation."
+        "explanation": "In a model with 100 million weights, finite differences would require 100 million forward passes per training step! Backpropagation caches forward activations and sweeps backwards once, computing all gradients in the time of a single forward pass."
+      },
+      {
+        "tier": "Mechanism & Trace",
+        "question": "In deep neural networks using Sigmoid activation σ(z) = 1 / (1 + e^-z), why do gradients vanish exponentially in early layers during backpropagation?",
+        "options": [
+          "The derivative σ'(z) = σ(z)(1 - σ(z)) has a maximum value of only 0.25; multiplying numbers ≤ 0.25 across 10 layers shrinks gradients to near zero (0.25^10 ≈ 10^-6)",
+          "Sigmoid outputs negative values that cancel out with bias terms",
+          "The GPU overflows 32-bit precision when dividing by e^-z",
+          "Early layers do not participate in the backward pass"
+        ],
+        "correctIndex": 0,
+        "explanation": "By the chain rule, gradients are multiplied layer by layer. When each layer's activation derivative is at most 0.25, the signal attenuates exponentially by at least 4x per layer, freezing learning in early weights."
+      },
+      {
+        "tier": "Adversarial Edge-Case",
+        "question": "What causes the \"Dying ReLU\" problem, and why does Leaky ReLU / GELU prevent it?",
+        "options": [
+          "If large negative gradients push a neuron's inputs permanently into negative territory (z < 0), ReLU output and gradient become strictly 0 forever; Leaky ReLU preserves a tiny slope (0.01z) so neurons can recover",
+          "ReLU divides by zero when the activation reaches 0",
+          "ReLU causes gradient explosion when inputs exceed 1.0",
+          "Dying ReLU only occurs on CPU execution, not CUDA"
+        ],
+        "correctIndex": 0,
+        "explanation": "For negative inputs, standard ReLU has zero activation and zero derivative (d/dz = 0). If a bad gradient updates weights such that the neuron is always negative, no gradient can ever flow through it again—it is permanently dead. Leaky ReLU leaves a small non-zero leak (α = 0.01) ensuring gradients never completely vanish."
       }
     ],
     "imagePrompt": "Technical infographic diagram of artificial neural network forward pass, backpropagation chain rule gradient flow, gradient descent loss landscape, anime visual style."
