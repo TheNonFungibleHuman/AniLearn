@@ -13,12 +13,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Default API key from user
-let GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'GEMINI_KEY_REMOVED';
-if (GEMINI_API_KEY.startsWith('AIzaSyC')) {
-  // If the old invalid environment key was picked up, override with user's verified working key
-  GEMINI_API_KEY = 'GEMINI_KEY_REMOVED';
-}
+// Gemini API key is read from the GEMINI_API_KEY environment variable only.
+// Never hardcode credentials here: this repository is public and anything
+// committed is permanently exposed in git history.
+let GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
