@@ -5,7 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
-dotenv.config();
+// override: true so a local .env wins over stale shell/OS environment variables.
+dotenv.config({ override: true });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -356,6 +357,84 @@ app.get('/api/topics/:id', (req, res) => {
   res.json(found);
 });
 
+// ── Resilient JSON parsing for model output ──────────────────────────────────
+// LLMs frequently emit LaTeX inside JSON strings (e.g. \alpha, \frac, \lambda).
+// Those backslashes are valid LaTeX but invalid JSON escapes, so JSON.parse
+// throws "Bad escaped character". This repair pass fixes escapes without
+// touching already-valid JSON, and is only used as a fallback.
+function repairJsonEscapes(json) {
+  let out = '';
+  let inString = false;
+  for (let i = 0; i < json.length; i++) {
+    const ch = json[i];
+    if (!inString) {
+      out += ch;
+      if (ch === '"') inString = true;
+      continue;
+    }
+    if (ch === '"') { inString = false; out += ch; continue; }
+    if (ch !== '\\') { out += ch; continue; }
+
+    const next = json[i + 1];
+    if (next === undefined) { out += '\\\\'; continue; }
+
+    // Unambiguous, always-valid JSON escapes.
+    if (next === '"' || next === '\\' || next === '/') { out += '\\' + next; i++; continue; }
+
+    // \uXXXX is a unicode escape only when followed by 4 hex digits; otherwise
+    // it is a LaTeX command such as \underbrace or \uplus.
+    if (next === 'u') {
+      const hex = json.substr(i + 2, 4);
+      if (/^[0-9a-fA-F]{4}$/.test(hex)) { out += '\\u'; } else { out += '\\\\u'; }
+      i++;
+      continue;
+    }
+
+    // Ambiguous escapes (\b \f \n \r \t): treat as LaTeX when followed by a
+    // lowercase letter (e.g. \beta, \frac, \nu, \rho, \tan), otherwise keep as
+    // a genuine control escape (e.g. a real "\n" paragraph break).
+    if ('bfnrt'.includes(next)) {
+      const after = json[i + 2];
+      if (after !== undefined && /[a-z]/.test(after)) { out += '\\\\' + next; }
+      else { out += '\\' + next; }
+      i++;
+      continue;
+    }
+
+    // Anything else (\alpha, \lambda, \sum, \pi, \Delta, \prime ...): escape the backslash.
+    out += '\\\\' + next;
+    i++;
+  }
+  return out;
+}
+
+// Try progressively more forgiving parses of a model response.
+function parseTopicJson(raw) {
+  const attempts = [];
+  const trimmed = (raw || '').trim();
+  if (trimmed) {
+    attempts.push(trimmed);
+    const match = trimmed.match(/\{[\s\S]*\}/);
+    if (match) attempts.push(match[0]);
+  }
+  for (const base of attempts.slice()) {
+    const repaired = repairJsonEscapes(base);
+    attempts.push(repaired);
+    let closed = repaired.trim();
+    if (!closed.endsWith('}')) closed += '"}';
+    attempts.push(closed);
+  }
+  let lastErr;
+  for (const candidate of attempts) {
+    try {
+      return JSON.parse(candidate);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error('No parseable JSON found');
+}
+
 // Deconstruct / Ingest Topic
 app.post('/api/decompose', async (req, res) => {
   try {
@@ -489,24 +568,12 @@ OUTPUT ONLY VALID JSON with the exact following schema:
     console.log(`Deconstructing topic with Gemini 3.8 Flash (Thinking Level: ${thinkingLevel})...`);
     const rawAiResponse = await callGeminiText(systemPrompt, thinkingLevel, customKey, true);
 
-    // Extract JSON from response with resilient parsing
+    // Extract JSON from response with resilient parsing (handles LaTeX escapes)
     let topicData;
     try {
-      topicData = JSON.parse(rawAiResponse);
-    } catch {
-      const jsonMatch = rawAiResponse.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        try {
-          topicData = JSON.parse(jsonMatch[0]);
-        } catch {
-          // Attempt to fix unclosed trailing brackets if cut off
-          let repaired = jsonMatch[0].trim();
-          if (!repaired.endsWith('}')) repaired += '"}';
-          topicData = JSON.parse(repaired);
-        }
-      } else {
-        throw new Error('AI did not return valid JSON. Raw output: ' + rawAiResponse.substring(0, 200));
-      }
+      topicData = parseTopicJson(rawAiResponse);
+    } catch (err) {
+      throw new Error('AI did not return valid JSON: ' + err.message);
     }
     topicData.id = topicId;
     topicData.style = style;
